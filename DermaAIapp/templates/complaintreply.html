@@ -1,0 +1,502 @@
+{% extends 'adminheader.html' %}
+{% block content %}
+
+<style>
+    /* Container styling */
+    .reply-page-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    }
+    
+    .reply-card {
+        width: 100%;
+        max-width: 900px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    /* Header */
+    .reply-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 35px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .reply-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+        animation: float 20s linear infinite;
+        opacity: 0.3;
+    }
+    
+    @keyframes float {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        100% { transform: translate(50px, 50px) rotate(360deg); }
+    }
+    
+    .reply-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .reply-title i {
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .reply-subtitle {
+        font-size: 16px;
+        opacity: 0.9;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Complaint Preview */
+    .complaint-preview {
+        padding: 30px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e6ed;
+    }
+    
+    .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        color: #2c3e50;
+    }
+    
+    .preview-header i {
+        color: #667eea;
+        font-size: 24px;
+    }
+    
+    .preview-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .complaint-content {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        line-height: 1.8;
+        color: #4a5568;
+        position: relative;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    .complaint-content::before {
+        content: '"';
+        position: absolute;
+        top: -15px;
+        left: 15px;
+        font-size: 60px;
+        color: rgba(102, 126, 234, 0.1);
+        font-family: serif;
+        line-height: 1;
+    }
+    
+    .complaint-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px dashed #e0e6ed;
+        color: #718096;
+        font-size: 14px;
+    }
+    
+    /* Form Styling */
+    .reply-form-container {
+        padding: 40px;
+    }
+    
+    .form-group {
+        margin-bottom: 35px;
+    }
+    
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 18px;
+    }
+    
+    .form-label i {
+        color: #48bb78;
+        font-size: 20px;
+    }
+    
+    /* Textarea Styling */
+    .reply-textarea {
+        width: 100%;
+        padding: 25px;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        font-size: 16px;
+        font-family: inherit;
+        line-height: 1.6;
+        resize: vertical;
+        min-height: 200px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(to bottom, #f8fafc, #fff);
+        color: #2d3748;
+    }
+    
+    .reply-textarea:hover {
+        border-color: #cbd5e0;
+        background: linear-gradient(to bottom, #f0f4f8, #fff);
+    }
+    
+    .reply-textarea:focus {
+        outline: none;
+        border-color: #48bb78;
+        box-shadow: 0 0 0 5px rgba(72, 187, 120, 0.15);
+        background: white;
+        transform: translateY(-2px);
+    }
+    
+    .reply-textarea::placeholder {
+        color: #a0aec0;
+        font-style: italic;
+    }
+    
+    /* Character Counter */
+    .char-counter {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 12px;
+        color: #718096;
+        font-size: 14px;
+    }
+    
+    .char-count {
+        font-weight: 600;
+        color: #667eea;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-top: 50px;
+        padding-top: 40px;
+        border-top: 2px solid #e2e8f0;
+    }
+    
+    .form-button {
+        padding: 18px 50px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-width: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .form-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+    
+    .form-button:hover::before {
+        left: 100%;
+    }
+    
+    .submit-button {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        box-shadow: 0 6px 20px rgba(72, 187, 120, 0.3);
+    }
+    
+    .submit-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(72, 187, 120, 0.4);
+    }
+    
+    .cancel-button {
+        background: white;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+        text-decoration: none;
+    }
+    
+    .cancel-button:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+        transform: translateY(-3px);
+    }
+    
+    /* Success Message (Optional) */
+    .success-message {
+        background: #c6f6d5;
+        color: #22543d;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 4px solid #48bb78;
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .reply-card {
+            max-width: 700px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .reply-page-container {
+            padding: 20px 15px;
+        }
+        
+        .reply-header {
+            padding: 30px 25px;
+        }
+        
+        .reply-title {
+            font-size: 28px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .complaint-preview,
+        .reply-form-container {
+            padding: 25px;
+        }
+        
+        .complaint-meta {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-button {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .reply-textarea {
+            padding: 20px;
+            min-height: 180px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .reply-header {
+            padding: 25px 20px;
+        }
+        
+        .reply-title {
+            font-size: 24px;
+        }
+        
+        .reply-subtitle {
+            font-size: 14px;
+        }
+        
+        .complaint-preview,
+        .reply-form-container {
+            padding: 20px;
+        }
+        
+        .complaint-content {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="reply-page-container">
+    <div class="reply-card">
+        <!-- Header Section -->
+        <div class="reply-header">
+            <h1 class="reply-title">
+                <i class="fas fa-reply"></i> Reply to Complaint
+            </h1>
+            <p class="reply-subtitle">Send a professional response to the user's complaint</p>
+        </div>
+        
+        <!-- Complaint Preview -->
+        <div class="complaint-preview">
+            <div class="preview-header">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>Complaint Details</h3>
+            </div>
+            <div class="complaint-content">
+                {{ complaint.complaint }}
+            </div>
+            <div class="complaint-meta">
+                <span><i class="fas fa-user"></i> From: {{ complaint.user.username|default:"User" }}</span>
+                <span><i class="fas fa-calendar"></i> Submitted: {{ complaint.current_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        
+        <!-- Reply Form -->
+        <div class="reply-form-container">
+            <form method="POST" id="replyForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-comment-dots"></i> Your Response
+                    </label>
+                    
+                    <!-- Custom textarea styling instead of form.as_p -->
+                    <textarea 
+                        name="reply" 
+                        id="id_reply" 
+                        class="reply-textarea"
+                        placeholder="Type your detailed response here. Be professional and helpful..."
+                        oninput="updateCharCount(this)"
+                    >{% if form.reply.value %}{{ form.reply.value }}{% endif %}</textarea>
+                    
+                    <div class="char-counter">
+                        <span>Recommended length: 50-500 characters</span>
+                        <span><span id="charCount">0</span>/2000 characters</span>
+                    </div>
+                    
+                    {% if form.reply.errors %}
+                        <div style="color: #e53e3e; margin-top: 10px; padding: 10px; background: #fff5f5; border-radius: 6px; border-left: 4px solid #e53e3e;">
+                            <i class="fas fa-exclamation-circle"></i> {{ form.reply.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-actions">
+                   
+                    </a>
+                    <button type="submit" class="form-button submit-button">
+                        <i class="fas fa-paper-plane"></i> Send Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- <script>
+    // Character counter
+    function updateCharCount(textarea) {
+        const charCount = textarea.value.length;
+        document.getElementById('charCount').textContent = charCount;
+        
+        // Visual feedback based on length
+        if (charCount < 50) {
+            textarea.style.borderColor = '#f6ad55';
+        } else if (charCount > 2000) {
+            textarea.style.borderColor = '#e53e3e';
+        } else {
+            textarea.style.borderColor = '#48bb78';
+        }
+    }
+    
+    // Initialize character counter
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('id_reply');
+        if (textarea) {
+            updateCharCount(textarea);
+            
+            // Auto-resize textarea
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        
+        // Form submission animation
+        const form = document.getElementById('replyForm');
+        const submitBtn = form.querySelector('.submit-button');
+        
+        form.addEventListener('submit', function(e) {
+            const charCount = document.getElementById('id_reply').value.length;
+            
+            // Optional validation
+            if (charCount < 10) {
+                e.preventDefault();
+                alert('Please write a more detailed reply (minimum 10 characters).');
+                return;
+            }
+            
+            // Loading animation
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            submitBtn.disabled = true;
+        });
+        
+        // Add focus effect to textarea
+        textarea.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateY(-5px)';
+            this.parentElement.style.transition = 'transform 0.3s ease';
+        });
+        
+        textarea.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateY(0)';
+        });
+    });
+</script> -->
+
+{% endblock %}

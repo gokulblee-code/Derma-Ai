@@ -1,0 +1,82 @@
+<html>
+<head>
+    <style>
+        #root {
+            width: 100vw;
+            height: 90vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <center>
+        <button id="saveVideoBtn" class="btn btn-primary">Save Video Link</button>
+    </center>
+
+<script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+
+<script>
+window.onload = function () {
+
+    const appointmentId = "{{ tjob.id }}";
+
+    const roomID = "appointment_" + appointmentId;
+    const userID = Math.floor(Math.random() * 10000) + "";
+    const userName = "user_" + userID;
+
+    const appID = 1155062809;
+    const serverSecret = "d2e721165191ce86dc021b26ad96e657"; // move to backend later
+
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+        appID,
+        serverSecret,
+        roomID,
+        userID,
+        userName
+    );
+
+    const meetingURL = window.location.protocol + '//' +
+        window.location.host + window.location.pathname +
+        '?roomID=' + roomID;
+
+    const zp = ZegoUIKitPrebuilt.create(kitToken);
+    zp.joinRoom({
+        container: document.querySelector("#root"),
+        scenario: {
+            mode: ZegoUIKitPrebuilt.VideoConference,
+        },
+        sharedLinks: [{
+            name: 'Appointment Link',
+            url: meetingURL,
+        }],
+        turnOnMicrophoneWhenJoining: true,
+        turnOnCameraWhenJoining: true,
+        showScreenSharingButton: true,
+        showTextChat: true,
+        maxUsers: 2
+    });
+
+    // SAVE VIDEO LINK
+    document.getElementById("saveVideoBtn").onclick = function () {
+        fetch("{% url 'save_video_url' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                tempjob_id: appointmentId,
+                url: meetingURL
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert("Video link saved successfully!");
+        });
+    };
+};
+</script>
+</body>
+</html>

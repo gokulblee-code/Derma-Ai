@@ -1,0 +1,479 @@
+{% extends 'doctorheader.html' %}
+{% block content %}
+<body>
+    <div class="container-fluid py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <!-- Header Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body py-3">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'testview' %}" class="text-decoration-none">
+                                        <i class="fas fa-flask"></i> Test Reports
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    <i class="fas fa-edit"></i> Edit Test
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Main Form Card -->
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-gradient-primary text-white py-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-lg bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-flask fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-4">
+                                <h1 class="h2 mb-1">Edit Test Report</h1>
+                                <p class="mb-0 opacity-75">Update laboratory test details and upload reports</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-white text-primary fs-6 px-3 py-2">
+                                    <i class="fas fa-user-md me-1"></i> Doctor
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        {% if messages %}
+                        <div class="mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <form method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Patient Information Section -->
+                            <!-- <div class="card border mb-4">
+                                <div class="card-header bg-light py-3">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-user-injured me-2 text-primary"></i>
+                                        Patient Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="info-box bg-primary bg-opacity-10 p-3 rounded">
+                                                <small class="text-muted d-block mb-1">Patient Name</small>
+                                                <h6 class="mb-0 text-primary">{{ form.instance.user_id.name|default:"N/A" }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="info-box bg-info bg-opacity-10 p-3 rounded">
+                                                <small class="text-muted d-block mb-1">Contact Number</small>
+                                                <h6 class="mb-0 text-info">{{ form.instance.user_id.contact|default:"N/A" }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+                            
+                            <!-- Form Fields -->
+                            <div class="row g-4">
+                                {% for field in form %}
+                                    {% if field.name != 'user_id' %}
+                                    <div class="col-md-{% cycle '6' '6' '12' %}">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold mb-2">
+                                                <i class="fas fa-{% cycle 'vial' 'calendar-alt' 'file-medical' 'stethoscope' 'notes-medical' 'file-upload' as field_icon %} me-2"></i>
+                                                {{ field.label }}
+                                                {% if field.field.required %}
+                                                    <span class="text-danger">*</span>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            {% if field.field.widget.input_type == 'select' %}
+                                                <select name="{{ field.name }}" 
+                                                        id="{{ field.id_for_label }}" 
+                                                        class="form-select form-select-lg {% if field.errors %}is-invalid{% endif %}">
+                                                    <option value="">Select {{ field.label }}</option>
+                                                    {% for choice in field.field.choices %}
+                                                        <option value="{{ choice.0 }}" 
+                                                            {% if field.value|stringformat:'s' == choice.0|stringformat:'s' %}selected{% endif %}>
+                                                            {{ choice.1 }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% elif field.field.widget.input_type == 'file' %}
+                                                <div class="file-upload-area border rounded p-4 text-center {% if field.errors %}border-danger{% endif %}">
+                                                    {% if field.value %}
+                                                    <div class="mb-3">
+                                                        <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                                        <div class="mt-2">
+                                                            <a href="{{ field.value.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-eye me-1"></i>View Current
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    <div class="input-group">
+                                                        <input type="file" 
+                                                               name="{{ field.name }}" 
+                                                               id="{{ field.id_for_label }}" 
+                                                               class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                                               {% if not field.field.required %}onchange="updateFileName(this)"{% endif %}>
+                                                    </div>
+                                                    <small class="text-muted mt-2 d-block">
+                                                        Supported formats: PDF, DOC, JPG, PNG (Max: 10MB)
+                                                    </small>
+                                                </div>
+                                            {% elif field.field.widget.input_type == 'textarea' %}
+                                                <textarea name="{{ field.name }}" 
+                                                          id="{{ field.id_for_label }}" 
+                                                          class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                                          rows="4"
+                                                          placeholder="Enter {{ field.label|lower }}">{{ field.value|default:'' }}</textarea>
+                                            {% elif field.field.widget.input_type == 'date' %}
+                                                <input type="date" 
+                                                       name="{{ field.name }}" 
+                                                       id="{{ field.id_for_label }}" 
+                                                       value="{{ field.value|date:'Y-m-d'|default:'' }}"
+                                                       class="form-control form-control-lg {% if field.errors %}is-invalid{% endif %}"
+                                                       {% if field.field.required %}required{% endif %}>
+                                            {% elif field.field.widget.input_type == 'checkbox' %}
+                                                <div class="form-check form-switch">
+                                                    <input type="checkbox" 
+                                                           name="{{ field.name }}" 
+                                                           id="{{ field.id_for_label }}" 
+                                                           class="form-check-input {% if field.errors %}is-invalid{% endif %}"
+                                                           {% if field.value %}checked{% endif %}
+                                                           style="height: 1.5rem; width: 3rem;">
+                                                    <label class="form-check-label ms-3" for="{{ field.id_for_label }}">
+                                                        {{ field.help_text|default:"Enable this option" }}
+                                                    </label>
+                                                </div>
+                                            {% else %}
+                                                <input type="{{ field.field.widget.input_type }}" 
+                                                       name="{{ field.name }}" 
+                                                       id="{{ field.id_for_label }}" 
+                                                       value="{{ field.value|default:'' }}"
+                                                       class="form-control form-control-lg {% if field.errors %}is-invalid{% endif %}"
+                                                       placeholder="Enter {{ field.label|lower }}"
+                                                       {% if field.field.required %}required{% endif %}>
+                                            {% endif %}
+                                            
+                                            {% if field.help_text and field.field.widget.input_type != 'checkbox' %}
+                                            <div class="form-text mt-2">
+                                                <small><i class="fas fa-info-circle me-1"></i>{{ field.help_text }}</small>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if field.errors %}
+                                            <div class="invalid-feedback d-block mt-2">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                {% for error in field.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Preview Section for File Uploads -->
+                            <div class="card border mt-4" id="filePreview" style="display: none;">
+                                <div class="card-header bg-light py-3">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-eye me-2 text-primary"></i>
+                                        File Preview
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div id="previewContent">
+                                        <!-- Preview will be inserted here by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="border-top mt-5 pt-4">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                                    <div class="mb-3 mb-md-0">
+                                        <a href="{% url 'testview' %}" class="btn btn-outline-secondary btn-lg px-4">
+                                            <i class="fas fa-arrow-left me-2"></i>Back to Tests
+                                        </a>
+                                    </div>
+                                    <div class="d-flex">
+                                        <button type="reset" class="btn btn-outline-warning btn-lg px-4 me-2">
+                                            <i class="fas fa-redo me-2"></i>Reset Form
+                                        </button>
+                                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                                            <i class="fas fa-save me-2"></i>Update Test
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Footer Notes -->
+                    <div class="card-footer bg-light py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>All test data is HIPAA compliant and encrypted
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-history me-1"></i>Last modified: {% now "F j, Y, g:i a" %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        .avatar-lg {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .form-control-lg, .form-select-lg {
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e0e6ef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-lg:focus, .form-select-lg:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .file-upload-area {
+            background-color: #f8f9fa;
+            border-style: dashed !important;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-area:hover {
+            background-color: #f0f2ff;
+            border-color: #667eea !important;
+        }
+        
+        .form-check-input:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .info-box {
+            transition: transform 0.3s ease;
+        }
+        
+        .info-box:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-outline-secondary, .btn-outline-warning {
+            border-radius: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        .breadcrumb-item a {
+            color: #667eea;
+        }
+        
+        .breadcrumb-item.active {
+            color: #6c757d;
+        }
+        
+        .invalid-feedback {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+        }
+        
+        @media (max-width: 768px) {
+            .card-header .d-flex {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .card-header .ms-4 {
+                margin-left: 0 !important;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .btn-lg {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+    
+    <script>
+        // File upload preview
+        function updateFileName(input) {
+            const filePreview = document.getElementById('filePreview');
+            const previewContent = document.getElementById('previewContent');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileSize = (file.size / (1024 * 1024)).toFixed(2); // Convert to MB
+                
+                // Show preview section
+                filePreview.style.display = 'block';
+                
+                // Create preview based on file type
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewContent.innerHTML = `
+                            <div class="mb-3">
+                                <img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px;" alt="Preview">
+                            </div>
+                            <div class="text-start">
+                                <p><strong>File Name:</strong> ${file.name}</p>
+                                <p><strong>File Size:</strong> ${fileSize} MB</p>
+                                <p><strong>File Type:</strong> ${file.type}</p>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type === 'application/pdf') {
+                    previewContent.innerHTML = `
+                        <div class="mb-3">
+                            <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                        </div>
+                        <div class="text-start">
+                            <p><strong>File Name:</strong> ${file.name}</p>
+                            <p><strong>File Size:</strong> ${fileSize} MB</p>
+                            <p><strong>File Type:</strong> PDF Document</p>
+                            <div class="alert alert-info mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                PDF files will be opened in a new tab
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    previewContent.innerHTML = `
+                        <div class="mb-3">
+                            <i class="fas fa-file fa-4x text-primary"></i>
+                        </div>
+                        <div class="text-start">
+                            <p><strong>File Name:</strong> ${file.name}</p>
+                            <p><strong>File Size:</strong> ${fileSize} MB</p>
+                            <p><strong>File Type:</strong> ${file.type}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                filePreview.style.display = 'none';
+            }
+        }
+        
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for file size on submit
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const fileInput = document.querySelector('input[type="file"]');
+                if (fileInput && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const maxSize = 10 * 1024 * 1024; // 10MB
+                    
+                    if (file.size > maxSize) {
+                        e.preventDefault();
+                        alert('File size exceeds 10MB limit. Please choose a smaller file.');
+                        fileInput.value = '';
+                        document.getElementById('filePreview').style.display = 'none';
+                    }
+                }
+            });
+            
+            // Initialize date field with today's date if empty
+            const dateField = document.querySelector('input[type="date"]');
+            if (dateField && !dateField.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateField.value = today;
+            }
+        });
+        
+        // Auto-expand textarea
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+    </script>
+</body>
+{% endblock %}

@@ -1,0 +1,298 @@
+{% extends 'userheader.html' %}
+{% block content %}
+<html>
+<head>
+<style>
+/* General body styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* Search Form */
+.search-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.search-box {
+    padding: 12px 15px;
+    font-size: 14px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    flex: 1;
+    min-width: 200px;
+    transition: all 0.3s;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+.search-btn {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* Doctor cards grid */
+.doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* Doctor card */
+.doctor-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.doctor-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+/* Card header */
+.card-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.doctor-avatar {
+    width: 80px;
+    height: 80px;
+    background: white;
+    color: #3498db;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    margin: 0 auto 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.doctor-name {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.doctor-specialty {
+    font-size: 1em;
+    opacity: 0.9;
+}
+
+/* Card body */
+.card-body {
+    padding: 20px;
+}
+
+.doctor-info {
+    margin-bottom: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 14px;
+}
+
+/* Availability badges */
+.doctor-availability {
+    margin-top: 10px;
+}
+
+.availability-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.slot-badge {
+    background-color: #27ae60; /* green */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.not-available {
+    color: #e74c3c; /* red */
+    font-weight: 500;
+}
+
+/* Card footer */
+.card-footer {
+    display: flex;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.action-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-book {
+    background-color: #27ae60;
+    color: white;
+}
+
+.btn-book:hover {
+    background-color: #219653;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(39, 174, 96, 0.3);
+}
+
+.btn-chat {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-chat:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(52, 152, 219, 0.3);
+}
+
+/* No results styling */
+.no-results {
+    text-align: center;
+    padding: 40px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-form {
+        flex-direction: column;
+    }
+    .doctors-grid {
+        grid-template-columns: 1fr;
+    }
+    .card-footer {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="search-container">
+
+    <!-- Search Form -->
+    <form method="get" class="search-form">
+        <input type="text" name="q" class="search-box" placeholder="Search doctor name..." 
+               value="{{ query|default:'' }}">
+        
+        <select name="specialization" class="search-box">
+            <option value="">All Specializations</option>
+            <option value="Cardiologist" {% if specialization == "Cardiologist" %}selected{% endif %}>Cardiologist</option>
+            <option value="Dermatologist" {% if specialization == "Dermatologist" %}selected{% endif %}>Dermatologist</option>
+            <option value="Pediatrician" {% if specialization == "Pediatrician" %}selected{% endif %}>Pediatrician</option>
+        </select>
+
+        <input type="text" name="city" class="search-box" placeholder="City" value="{{ city|default:'' }}">
+        
+        <button type="submit" class="search-btn">🔍 Search</button>
+    </form>
+
+    <!-- Doctor Cards -->
+    <div class="doctors-grid">
+        {% for doctor in doctors %}
+        <div class="doctor-card">
+            <div class="card-header">
+                <div class="doctor-avatar">
+                    {% if doctor.gender == 'F' %}👩‍⚕️{% else %}👨‍⚕️{% endif %}
+                </div>
+                <div class="doctor-name">Dr. {{ doctor.name }}</div>
+                <div class="doctor-specialty">{{ doctor.specialization }}</div>
+            </div>
+
+            <div class="card-body">
+                <div class="doctor-info">
+                    <div class="info-item">🏥 {{ doctor.hospital_name|default:"Private Practice" }}</div>
+                    <div class="info-item">📍 {{ doctor.city }}, {{ doctor.state }}</div>
+                    <div class="info-item">📞 {{ doctor.contact }}</div>
+                    <div class="info-item">👤 {{ doctor.gender }} | {{ doctor.experience }}+ yrs exp</div>
+                </div>
+
+                <!-- Availability -->
+                <div class="doctor-availability">
+                    <strong>Today's Availability:</strong>
+                    {% if doctor.today_slots %}
+                        <div class="availability-slots">
+                            {% for slot in doctor.today_slots %}
+                                <span class="slot-badge">
+                                    {{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <span class="not-available">Not Available Today</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <a href="{% url 'appointment' doctor.id %}" class="action-btn btn-book">📅 Book Appointment</a>
+                <a href="{% url 'chat' doctor.id %}" class="action-btn btn-chat">💬 Start Chat</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-results">
+            <h3>No doctors found</h3>
+            <p>Try adjusting your search criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
+{% endblock %}

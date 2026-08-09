@@ -1,0 +1,377 @@
+{% extends 'userheader.html' %}
+{% block content %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:      #1a5c3a;
+  --green-lt:   #eaf2ec;
+  --green-mid:  #3a8c5c;
+  --gold:       #b8923a;
+  --gold-lt:    #fdf6e8;
+  --ink:        #141f14;
+  --ink-muted:  #4a5e4a;
+  --ink-faint:  #8fa88f;
+  --warm:       #f8f7f3;
+  --card:       #ffffff;
+  --border:     rgba(26,92,58,.11);
+  --border-soft:rgba(26,92,58,.06);
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.05);
+}
+
+.rp-page {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--warm);
+  min-height: 100vh;
+  padding: 44px 24px 72px;
+  color: var(--ink);
+}
+
+/* ── Header ── */
+.rp-header {
+  max-width: 1080px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+.rp-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin-bottom: 10px;
+}
+.rp-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px;
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.rp-title em {
+  font-style: italic;
+  color: var(--green);
+}
+.rp-sub {
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin-top: 10px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+/* ── Disease section ── */
+.disease-section {
+  max-width: 1080px;
+  margin: 0 auto 56px;
+}
+
+.disease-label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.disease-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green);
+  color: #fff;
+  padding: 7px 18px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+.disease-tag svg {
+  width: 14px; height: 14px;
+  stroke: rgba(255,255,255,.7);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.disease-divider {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Tips card ── */
+.tips-card {
+  background: var(--gold-lt);
+  border: 1px solid rgba(184,146,58,.18);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.tips-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+}
+.tips-icon svg {
+  width: 18px; height: 18px;
+  stroke: #fff; fill: none;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+.tips-content {}
+.tips-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.tips-text {
+  font-size: 13.5px;
+  color: #5a4010;
+  line-height: 1.75;
+  margin-bottom: 10px;
+}
+.tips-link {
+  font-size: 12px;
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid rgba(184,146,58,.3);
+  padding-bottom: 1px;
+  transition: border-color .15s;
+}
+.tips-link:hover { border-color: var(--gold); }
+
+/* ── Products grid ── */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.prod-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+  display: flex;
+  flex-direction: column;
+}
+.prod-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0,0,0,.06), 0 16px 40px rgba(0,0,0,.09);
+}
+
+.prod-img-wrap {
+  width: 100%;
+  height: 160px;
+  background: var(--green-lt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.prod-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+}
+.prod-img-placeholder {
+  width: 48px; height: 48px;
+  opacity: .25;
+}
+
+.prod-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prod-source {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.prod-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.4;
+  flex: 1;
+}
+.prod-price {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green);
+}
+.prod-price:empty { display: none; }
+
+.prod-btn {
+  display: block;
+  margin: 4px 16px 16px;
+  padding: 10px;
+  background: var(--green);
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background .15s, transform .1s;
+}
+.prod-btn:hover { background: #145030; }
+.prod-btn:active { transform: scale(.98); }
+.prod-btn.disabled {
+  background: #c5d4c5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Empty state ── */
+.rp-empty {
+  max-width: 440px;
+  margin: 80px auto;
+  text-align: center;
+}
+.rp-empty-icon {
+  width: 64px; height: 64px;
+  background: var(--green-lt);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+}
+.rp-empty-icon svg {
+  width: 28px; height: 28px;
+  stroke: var(--green-mid); fill: none;
+  stroke-width: 1.5; stroke-linecap: round;
+}
+.rp-empty h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300;
+  color: var(--ink); margin-bottom: 8px;
+}
+.rp-empty p { font-size: 13px; color: var(--ink-faint); line-height: 1.7; }
+
+/* ── No products inline ── */
+.no-products {
+  grid-column: 1 / -1;
+  padding: 28px;
+  text-align: center;
+  background: var(--card);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+</style>
+
+<div class="rp-page">
+
+  <div class="rp-header">
+    <div class="rp-eyebrow">Your skin health</div>
+    <h1 class="rp-title">Recommended <em>Products</em></h1>
+    <p class="rp-sub">Curated products and expert tips based on your diagnosed conditions.</p>
+  </div>
+
+  {% if recommendations %}
+    {% for group in recommendations %}
+      <div class="disease-section">
+
+        <!-- Disease label -->
+        <div class="disease-label">
+          <div class="disease-tag">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+            {{ group.disease }}
+          </div>
+          <div class="disease-divider"></div>
+        </div>
+
+        <!-- Educational tips -->
+        {% if group.tips %}
+          <div class="tips-card">
+            <div class="tips-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="tips-content">
+              <div class="tips-label">Expert tips for {{ group.disease }}</div>
+              <p class="tips-text">{{ group.tips }}</p>
+              <a href="{{ group.tips_link }}" target="_blank" class="tips-link">
+                Read full article
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </a>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Product cards -->
+        <div class="products-grid">
+          {% if group.products %}
+            {% for prod in group.products %}
+              <div class="prod-card">
+                <div class="prod-img-wrap">
+                  {% if prod.image %}
+                    <img src="{{ prod.image }}" alt="{{ prod.title }}">
+                  {% else %}
+                    <svg class="prod-img-placeholder" viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="1" stroke-linecap="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                    </svg>
+                  {% endif %}
+                </div>
+                <div class="prod-body">
+                  {% if prod.source %}<div class="prod-source">{{ prod.source }}</div>{% endif %}
+                  <div class="prod-title">{{ prod.title|truncatechars:70 }}</div>
+                  {% if prod.price %}<div class="prod-price">{{ prod.price }}</div>{% endif %}
+                </div>
+                {% if prod.link %}
+                  <a href="{{ prod.link }}" target="_blank" class="prod-btn">View Product</a>
+                {% else %}
+                  <span class="prod-btn disabled">Unavailable</span>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="no-products">
+              No products found for <strong>{{ group.disease }}</strong> at the moment. Please check back later.
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="rp-empty">
+      <div class="rp-empty-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+      </div>
+      <h3>No diagnoses on record</h3>
+      <p>Once your doctor records a diagnosis for one of your appointments, personalised product recommendations will appear here.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

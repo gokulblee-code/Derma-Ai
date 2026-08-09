@@ -1,0 +1,60 @@
+{% extends 'hospitalheader.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Search</title>
+
+</head>
+<body>
+    <div class="search-container" >
+        <h2>Search Patients in Hospital</h2>
+        
+        <!-- Hospital Search Form -->
+        <form method="get" class="search-form">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Search patient by name or contact" 
+                value="{{ query }}"
+                style="flex: 1; min-width: 200px;"
+            >
+            <button type="submit">Search Hospital</button>
+        </form>
+
+
+
+    <!-- Patients Table -->
+    <div class="table-container">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in hospitals %}
+                    <tr>
+                        <td>{{ patient.name }}</td>
+                        <td>{{ patient.contact }}</td>
+                        <td><a href="{% url 'assignpatient' patient.id %}">Assign</a></td>
+
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="no-data">
+                            {% if selected_hospital %}
+                                No patients found in this hospital.
+                            {% else %}
+                                Select a hospital to view patients.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+{% endblock %}

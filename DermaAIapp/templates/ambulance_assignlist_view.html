@@ -1,0 +1,88 @@
+{% extends 'ambulanceheader.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Assignments Management</h4>
+                    <span class="badge bg-light text-primary">{{ assign|length }} Assignments</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if assign %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Patient Name</th>
+                                    <th>Driver Name</th>
+                                    <th>Address</th>
+                                    <th>Assign Date</th>
+                                    <th>Assign Time</th>
+                                    <th>Current Date</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ambulance in assign %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="fw-bold">{{ ambulance.user_loginid.name }}</div>
+                                    </td>
+                                    <td>{{ ambulance.Ambulance_loginid.driver_name }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ ambulance.address|truncatechars:40 }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ ambulance.assign_date|date:"d M" }}</span>
+                                    </td>
+                                    <td>{{ ambulance.assign_time|time:"H:i" }}</td>
+                                    <td>{{ ambulance.current_date|date:"d M Y" }}</td>
+                                    <td>
+                                        <i class="fas fa-phone text-primary me-1"></i>
+                                        {{ ambulance.user_loginid.contact }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">Pending</span>
+                                    </td>
+                                    <td>
+{% if ambulance.status == 1 %}
+    <span class="badge bg-success">
+        <i class="fas fa-check-circle me-1"></i> Confirmed
+    </span>
+{% else %}
+    <a href="{% url 'confirmation' ambulance.id %}" 
+       class="btn btn-success btn-sm">
+        <i class="fas fa-check-circle me-1"></i> Confirm
+    </a>
+{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Assignments Found</h5>
+                        <p class="text-muted">No assignments are currently available.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if assign %}
+                <div class="card-footer bg-light">
+                    <small class="text-muted">
+                        Showing {{ assign|length }} assignment{{ assign|pluralize }}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

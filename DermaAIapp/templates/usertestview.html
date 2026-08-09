@@ -1,0 +1,628 @@
+{% extends 'userheader.html' %}
+{% load static %}
+{% block content %}
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="h2 mb-1">
+                                    <i class="fas fa-vial text-primary me-2"></i>My Medical Tests
+                                </h1>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    View and manage your prescribed medical tests
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <div class="d-flex justify-content-md-end gap-2">
+                                    <button class="btn btn-outline-primary" onclick="window.print()">
+                                        <i class="fas fa-print me-1"></i>Print
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-download me-1"></i>Export
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="exportToPDF()"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Tests</h6>
+                                <h3 class="mb-0">{{ tests|length }}</h3>
+                            </div>
+                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="fas fa-vial text-primary fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">With Reports</h6>
+                                <h3 class="mb-0">{{ reports_count }}</h3>
+                            </div>
+                            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="fas fa-file-medical text-success fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Unique Doctors</h6>
+                                <h3 class="mb-0">{{ unique_doctors }}</h3>
+                            </div>
+                            <div class="avatar-sm bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user-md text-info fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Pending Reports</h6>
+                                <h3 class="mb-0">{{ pending_reports }}</h3>
+                            </div>
+                            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="fas fa-clock text-warning fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tests Table Card -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-gradient-primary text-white py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h3 class="h4 mb-0">
+                                    <i class="fas fa-list-check me-2"></i>Prescribed Tests
+                                </h3>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search tests...">
+                                    <button class="btn btn-white" type="button" onclick="clearSearch()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="testsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">
+                                            <i class="fas fa-user-md me-1"></i>Doctor Name
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-phone me-1"></i>Contact
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-vial-circle-check me-1"></i>Test Details
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-calendar-day me-1"></i>Prescribed Date
+                                        </th>
+                                        <th class="text-center pe-4">
+                                            <i class="fas fa-file-waveform me-1"></i>Report
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for test in tests %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <div class="avatar-sm bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center">
+                                                        <i class="fas fa-user-md"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-0 fw-semibold">{{ test.doctor_id.name }}</h6>
+                                                    {% if test.doctor_id.specialization %}
+                                                    <small class="text-muted">{{ test.doctor_id.specialization }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-phone text-secondary me-2"></i>
+                                                <span class="fw-semibold">{{ test.user_id.contact }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="test-content" style="max-height: 60px; overflow: hidden; position: relative;">
+                                                {{ test.test|truncatechars:150 }}
+                                                {% if test.test|length > 150 %}
+                                                <div class="test-overlay"></div>
+                                                {% endif %}
+                                            </div>
+                                            {% if test.test|length > 150 %}
+                                            <button class="btn btn-link btn-sm p-0 mt-1 text-decoration-none" 
+                                                    onclick="toggleTestDetails(this)">
+                                                <i class="fas fa-eye me-1"></i>View Full Details
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-calendar text-primary me-2"></i>
+                                                <div>
+                                                    <span class="fw-semibold">{{ test.current_date }}</span>
+                                                    <div class="small text-muted">{{ test.current_date|timesince }} ago</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'report' test.id %}" class="btn btn-sm btn-primary" 
+                                                   data-bs-tooltip="tooltip" title="View/Upload Report">
+                                                    <i class="fas fa-file-waveform me-1"></i>Report
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        data-bs-toggle="modal" data-bs-target="#testModal{{ test.id }}"
+                                                        data-bs-tooltip="tooltip" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Test Details Modal -->
+                                    <div class="modal fade" id="testModal{{ test.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title">
+                                                        <i class="fas fa-file-medical-alt me-2"></i>
+                                                        Test Details
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row mb-4">
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 bg-light">
+                                                                <div class="card-body">
+                                                                    <h6 class="text-muted mb-3">Doctor Information</h6>
+                                                                    <div class="mb-3">
+                                                                        <small class="text-muted d-block">Doctor Name</small>
+                                                                        <p class="mb-0 fw-semibold">{{ test.doctor_id.name }}</p>
+                                                                    </div>
+                                                                    {% if test.doctor_id.specialization %}
+                                                                    <div class="mb-3">
+                                                                        <small class="text-muted d-block">Specialization</small>
+                                                                        <p class="mb-0 fw-semibold">{{ test.doctor_id.specialization }}</p>
+                                                                    </div>
+                                                                    {% endif %}
+                                                                    <div>
+                                                                        <small class="text-muted d-block">Contact</small>
+                                                                        <p class="mb-0 fw-semibold">{{ test.user_id.contact }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 bg-light">
+                                                                <div class="card-body">
+                                                                    <h6 class="text-muted mb-3">Test Information</h6>
+                                                                    <div class="mb-3">
+                                                                        <small class="text-muted d-block">Prescribed Date</small>
+                                                                        <p class="mb-0 fw-semibold">{{ test.current_date }}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <small class="text-muted d-block">Test ID</small>
+                                                                        <p class="mb-0 fw-semibold">#{{ test.id }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="card border-0">
+                                                        <div class="card-header bg-light">
+                                                            <h6 class="mb-0">
+                                                                <i class="fas fa-vial me-2"></i>
+                                                                Test Details
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="bg-white p-4 rounded border">
+                                                                <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; font-size: 1rem; line-height: 1.6;">{{ test.test }}</pre>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                        <i class="fas fa-times me-1"></i>Close
+                                                    </button>
+                                                    <a href="{% url 'report' test.id %}" class="btn btn-primary">
+                                                        <i class="fas fa-file-waveform me-1"></i>View Report
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-primary" onclick="printTestDetails({{ test.id }})">
+                                                        <i class="fas fa-print me-1"></i>Print
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fas fa-vial fa-3x mb-3 opacity-25"></i>
+                                                <h5 class="mb-2">No Tests Found</h5>
+                                                <p class="mb-0">You haven't been prescribed any medical tests yet.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-light py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Showing <strong>{{ tests|length }}</strong> test{{ tests|length|pluralize }}
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="filterByDate()">
+                                        <i class="fas fa-calendar me-1"></i>Filter by Date
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="clearSearch()">
+                                        <i class="fas fa-redo me-1"></i>Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Bootstrap JS Bundle (for modals and tooltips) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .test-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, white);
+        }
+        
+        .test-content.expanded {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.375rem;
+            margin: 0 2px;
+        }
+        
+        .card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .table th {
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        
+        .modal-header {
+            border-bottom: none;
+        }
+        
+        /* Custom scrollbar for test details */
+        pre::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        pre::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        pre::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        pre::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-completed {
+            background-color: #28a745;
+        }
+        
+        .status-pending {
+            background-color: #ffc107;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .card-header .row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .card-footer .row {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+            
+            .btn-group .btn {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.8rem;
+            }
+            
+            .d-flex.justify-content-md-end {
+                justify-content: flex-start !important;
+                margin-top: 1rem;
+            }
+            
+            h1.h2 {
+                font-size: 1.5rem !important;
+            }
+        }
+        
+        @media print {
+            .btn, .card-footer, .modal, .dropdown, .stats-cards,
+            .modal-backdrop, .btn-group, .input-group {
+                display: none !important;
+            }
+            
+            .card {
+                border: none;
+                box-shadow: none;
+            }
+            
+            .table th, .table td {
+                border: 1px solid #dee2e6;
+            }
+            
+            .test-content {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+        }
+    </style>
+    
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#testsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const rows = document.querySelectorAll('#testsTable tbody tr');
+            rows.forEach(row => row.style.display = '');
+        }
+        
+        // Toggle test details
+        function toggleTestDetails(button) {
+            const content = button.previousElementSibling;
+            content.classList.toggle('expanded');
+            
+            if (content.classList.contains('expanded')) {
+                button.innerHTML = '<i class="fas fa-eye-slash me-1"></i>View Less';
+            } else {
+                button.innerHTML = '<i class="fas fa-eye me-1"></i>View Full Details';
+            }
+        }
+        
+        // Filter by date (placeholder)
+        function filterByDate() {
+            const date = prompt('Enter date (YYYY-MM-DD) to filter tests:');
+            if (date) {
+                const rows = document.querySelectorAll('#testsTable tbody tr');
+                rows.forEach(row => {
+                    const dateCell = row.querySelector('td:nth-child(4)');
+                    if (dateCell && dateCell.textContent.includes(date)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Print test details
+        function printTestDetails(testId) {
+            const modal = document.getElementById('testModal' + testId);
+            const printContent = modal.querySelector('.modal-content').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Test Details - #${testId}</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                    <style>
+                        @media print {
+                            body { margin: 0; padding: 20px; }
+                            .modal-content { border: none; box-shadow: none; }
+                            .btn { display: none !important; }
+                            .modal-footer { display: none !important; }
+                        }
+                        pre { 
+                            white-space: pre-wrap; 
+                            word-wrap: break-word;
+                            font-family: inherit;
+                            font-size: 14px;
+                            line-height: 1.6;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            location.reload();
+        }
+        
+        // Export functions
+        function exportToPDF() {
+            alert('PDF export functionality would be implemented here.');
+        }
+        
+        function exportToCSV() {
+            alert('Excel export functionality would be implemented here.');
+        }
+        
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-tooltip="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Auto-expand test details on small screens
+            if (window.innerWidth < 768) {
+                const testContents = document.querySelectorAll('.test-content');
+                testContents.forEach(content => {
+                    content.style.maxHeight = 'none';
+                    const overlay = content.querySelector('.test-overlay');
+                    if (overlay) overlay.style.display = 'none';
+                    const button = content.nextElementSibling;
+                    if (button) button.style.display = 'none';
+                });
+            }
+        });
+        
+        // Calculate stats (these would typically come from your view)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Count reports (assuming reports have file or status)
+            const reportLinks = document.querySelectorAll('a[href*="report"]');
+            const reportsCount = reportLinks.length;
+            
+            // Count unique doctors
+            const doctorNames = new Set();
+            document.querySelectorAll('td:first-child h6').forEach(el => {
+                doctorNames.add(el.textContent.trim());
+            });
+            
+            // Update stats if needed
+            console.log('Total tests:', {{ tests|length }});
+            console.log('Unique doctors:', doctorNames.size);
+        });
+    </script>
+</body>
+{% endblock %}

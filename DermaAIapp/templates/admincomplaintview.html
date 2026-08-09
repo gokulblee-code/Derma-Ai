@@ -1,0 +1,372 @@
+{% extends 'adminheader.html' %}
+{% block content %}
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header Card -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="h4 mb-0"><i class="fas fa-comments me-2"></i>User Complaints</h2>
+                            <span class="badge bg-light text-primary">{{ complaints|length }} Complaints</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="complaints-table" class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3 ps-4">
+                                            <i class="fas fa-user me-2"></i>User Name
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-calendar-alt me-2"></i>Date Submitted
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-exclamation-circle me-2"></i>Complaint Details
+                                        </th>
+                                        <th class="py-3 text-center">
+                                            <i class="fas fa-reply me-2"></i>Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if complaints %}
+                                        {% for user in complaints %}
+                                        <tr class="align-middle">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ user.user_id.name }}</h6>
+                                                        <small class="text-muted">User ID: {{ user.user_id.id }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-medium">{{ user.current_date }}</span>
+                                                    <small class="text-muted">Submitted Date</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="complaint-content">
+                                                    {% if user.complaint|length > 80 %}
+                                                        <div class="complaint-preview">
+                                                            {{ user.complaint|truncatechars:80 }}
+                                                        </div>
+                                                        <a href="#" class="text-primary view-full" 
+                                                           data-bs-toggle="modal" 
+                                                           data-bs-target="#complaintModal{{ user.id }}">
+                                                            Read More
+                                                        </a>
+                                                    {% else %}
+                                                        <div class="complaint-text">
+                                                            {{ user.complaint }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="{% url 'complaintreply' user.id %}" 
+                                                   class="btn btn-primary btn-sm px-3"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Reply to Complaint">
+                                                    <i class="fas fa-reply me-1"></i> Reply
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Modal for full complaint view -->
+                                        {% if user.complaint|length > 80 %}
+                                        <div class="modal fade" id="complaintModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title">
+                                                            <i class="fas fa-exclamation-circle me-2"></i>
+                                                            Complaint Details
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row mb-4">
+                                                            <div class="col-md-6">
+                                                                <h6><i class="fas fa-user me-2 text-muted"></i>User Information</h6>
+                                                                <div class="ms-4">
+                                                                    <p class="mb-1"><strong>Name:</strong> {{ user.user_id.name }}</p>
+                                                                    {% if user.user_id.email %}
+                                                                    <p class="mb-1"><strong>Email:</strong> {{ user.user_id.email }}</p>
+                                                                    {% endif %}
+                                                                    {% if user.user_id.contact %}
+                                                                    <p class="mb-0"><strong>Contact:</strong> {{ user.user_id.contact }}</p>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <h6><i class="fas fa-calendar me-2 text-muted"></i>Complaint Information</h6>
+                                                                <div class="ms-4">
+                                                                    <p class="mb-1"><strong>Submitted:</strong> {{ user.current_date }}</p>
+                                                                    <p class="mb-0"><strong>Complaint ID:</strong> #{{ user.id }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mt-3">
+                                                            <h6><i class="fas fa-comment-dots me-2 text-muted"></i>Complaint Details</h6>
+                                                            <div class="card bg-light mt-2">
+                                                                <div class="card-body">
+                                                                    <p class="mb-0">{{ user.complaint }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <a href="{% url 'complaintreply' user.id %}" class="btn btn-primary">
+                                                            <i class="fas fa-reply me-1"></i> Reply Now
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center py-5">
+                                                <div class="py-4">
+                                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                                    <h5 class="text-muted">No Complaints Found</h5>
+                                                    <p class="text-muted mb-0">All complaints have been addressed.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    {% if complaints %}
+                    <div class="card-footer bg-light py-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Showing {{ complaints|length }} complaint(s)
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-filter me-1"></i>Filter
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">All Complaints</a></li>
+                                        <li><a class="dropdown-item" href="#">Today's Complaints</a></li>
+                                        <li><a class="dropdown-item" href="#">Unreplied Complaints</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Stats Cards -->
+                {% if complaints %}
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center py-4">
+                                <div class="text-primary mb-2">
+                                    <i class="fas fa-comments fa-2x"></i>
+                                </div>
+                                <h3 class="h2 fw-bold">{{ complaints|length }}</h3>
+                                <p class="text-muted mb-0">Total Complaints</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center py-4">
+                                <div class="text-success mb-2">
+                                    <i class="fas fa-calendar-day fa-2x"></i>
+                                </div>
+                                <h3 class="h2 fw-bold">{{ today_count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Today's Complaints</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center py-4">
+                                <div class="text-warning mb-2">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </div>
+                                <h3 class="h2 fw-bold">{{ pending_count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Pending Replies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center py-4">
+                                <div class="text-info mb-2">
+                                    <i class="fas fa-check-circle fa-2x"></i>
+                                </div>
+                                <h3 class="h2 fw-bold">{{ resolved_count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Resolved Complaints</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Bootstrap JS for modals and tooltips -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .table > :not(caption) > * > * {
+            vertical-align: middle;
+            padding: 1rem 0.75rem;
+        }
+        
+        .card {
+            border-radius: 12px;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .complaint-content {
+            max-width: 300px;
+        }
+        
+        .complaint-preview {
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 5px;
+        }
+        
+        .complaint-text {
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .view-full {
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .view-full:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            min-width: 90px;
+        }
+        
+        .bg-opacity-10 {
+            opacity: 0.1;
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+        }
+        
+        .modal-header {
+            border-radius: 12px 12px 0 0;
+        }
+        
+        /* Status indicators */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8rem;
+                min-width: 80px;
+            }
+            
+            .complaint-content {
+                max-width: 200px;
+            }
+        }
+    </style>
+    
+    <script>
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Initialize all modals
+            var modalTriggerList = [].slice.call(document.querySelectorAll('[data-bs-target^="#complaintModal"]'));
+            modalTriggerList.forEach(function (modalTriggerEl) {
+                modalTriggerEl.addEventListener('click', function() {
+                    var target = this.getAttribute('data-bs-target');
+                    var modal = new bootstrap.Modal(document.querySelector(target));
+                    modal.show();
+                });
+            });
+            
+            // Filter functionality
+            const filterBtn = document.querySelector('.dropdown-toggle');
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function() {
+                    // Implement filter logic here
+                });
+            }
+            
+            // DataTables initialization (if needed)
+            // $('#complaints-table').DataTable();
+        });
+    </script>
+</body>
+{% endblock %}

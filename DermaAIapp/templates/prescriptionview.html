@@ -1,0 +1,341 @@
+{% extends 'doctorheader.html' %}
+{% block content %}
+<body>
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="h3 mb-2 text-primary">
+                                    <i class="fas fa-prescription-bottle-alt me-2"></i>Prescription Management
+                                </h1>
+                                <p class="text-muted mb-0">
+                                    View and manage all patient prescriptions. Total: <span class="badge bg-primary">{{ appointments|length }}</span> prescriptions
+                                </p>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-primary" onclick="window.print()">
+                                    <i class="fas fa-print me-2"></i>Print Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-gradient-info text-white py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h3 class="h5 mb-0">
+                                    <i class="fas fa-list-alt me-2"></i>All Prescriptions
+                                </h3>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search prescriptions...">
+                                    <button class="btn btn-white" type="button" onclick="clearSearch()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="prescriptionTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center">
+                                            <i class="fas fa-hashtag me-1"></i>ID
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-user me-1"></i>Patient Details
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-file-prescription me-1"></i>Prescription
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-cogs me-1"></i>Created At
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-calendar-alt me-1"></i>Action
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in appointments %}
+                                    <tr class="prescription-row">
+                                        <td class="text-center">
+                                            <span class="badge bg-primary rounded-pill px-3 py-2">
+                                                #{{ prescription.id }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center">
+                                                        <i class="fas fa-user-md fs-5"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-1">{{ prescription.user_id.name }}</h6>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-id-card me-1"></i>ID: {{ prescription.user_id.id }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="prescription-content" style="max-height: 100px; overflow: hidden; position: relative;">
+                                                {{ prescription.prescription|default:"No prescription details" }}
+                                                {% if prescription.prescription|length > 150 %}
+                                                <div class="prescription-overlay"></div>
+                                                {% endif %}
+                                            </div>
+                                            {% if prescription.prescription|length > 150 %}
+                                            <button class="btn btn-link btn-sm p-0 mt-1 text-decoration-none view-more-btn" 
+                                                    onclick="togglePrescription(this)">
+                                                <i class="fas fa-eye me-1"></i>View More
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ prescription.created_at|date:"M d, Y"|default:"N/A" }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'prescriptionedit' prescription.id %}" 
+                                                   class="btn btn-sm btn-outline-primary rounded-start-2"
+                                                   data-bs-toggle="tooltip" title="Edit Prescription">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-danger rounded-end-2"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteModal{{ prescription.id }}"
+                                                        data-bs-tooltip="tooltip" title="Delete Prescription">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                            
+                                            <!-- Delete Confirmation Modal -->
+                                            <div class="modal fade" id="deleteModal{{ prescription.id }}" tabindex="-1">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-danger text-white">
+                                                            <h5 class="modal-title">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                Confirm Deletion
+                                                            </h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="text-center mb-4">
+                                                                <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                                                                <h6>Are you sure you want to delete this prescription?</h6>
+                                                                <p class="text-muted small mt-2">
+                                                                    <strong>Patient:</strong> {{ prescription.user_id.name }}<br>
+                                                                    <strong>Prescription ID:</strong> #{{ prescription.id }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                <i class="fas fa-times me-1"></i>Cancel
+                                                            </button>
+                                                            <a href="{% url 'prescriptiondelete' prescription.id %}" 
+                                                               class="btn btn-danger">
+                                                                <i class="fas fa-trash me-1"></i>Delete
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fas fa-prescription fa-3x mb-3 opacity-25"></i>
+                                                <h5 class="mb-2">No Prescriptions Found</h5>
+                                                <p class="mb-0">No prescription records available.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-light py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Showing <strong>{{ appointments|length }}</strong> prescription{{ appointments|length|pluralize }}
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-download me-1"></i>Export
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-filter me-1"></i>Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+        
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .prescription-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(transparent, white);
+        }
+        
+        .prescription-content.expanded {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(23, 162, 184, 0.05);
+            transform: scale(1.002);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.375rem;
+        }
+        
+        .btn-group .rounded-start-2 {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+        
+        .btn-group .rounded-end-2 {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+        }
+        
+        .modal-header {
+            border-bottom: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        .card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .table th {
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem 0.75rem;
+        }
+        
+        .table td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+        }
+        
+        @media print {
+            .btn, .card-footer, .modal, .view-more-btn {
+                display: none !important;
+            }
+            
+            .card {
+                border: none;
+                box-shadow: none;
+            }
+            
+            .prescription-content {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+        }
+    </style>
+    
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.prescription-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const rows = document.querySelectorAll('.prescription-row');
+            rows.forEach(row => row.style.display = '');
+        }
+        
+        // Toggle prescription content
+        function togglePrescription(button) {
+            const content = button.previousElementSibling;
+            content.classList.toggle('expanded');
+            
+            if (content.classList.contains('expanded')) {
+                button.innerHTML = '<i class="fas fa-eye-slash me-1"></i>View Less';
+            } else {
+                button.innerHTML = '<i class="fas fa-eye me-1"></i>View More';
+            }
+        }
+        
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+{% endblock %}

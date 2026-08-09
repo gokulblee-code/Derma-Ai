@@ -1,0 +1,86 @@
+{% extends "hospitalheader.html" %}
+{% block content %}
+<h2>Nearby Emergency Alerts</h2>
+
+{% if not hospital.latitude or not hospital.longitude %}
+  <p style="color:red;">Hospital location not set. Please update hospital latitude/longitude first.</p>
+{% endif %}
+
+<div style="display:flex; gap:12px; align-items:center; margin:10px 0;">
+  <label>Radius (km):</label>
+  <input type="number" id="radius" value="10" min="1" max="100" style="width:90px;">
+  <button type="button" onclick="loadEmergencies()">Refresh</button>
+  <span id="count"></span>
+</div>
+
+<div id="map" style="height: 520px; border:1px solid #ccc; border-radius:10px;"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let map, hospitalMarker;
+let emergencyLayer = L.layerGroup();
+
+function initMap() {
+  const hLat = {{ hospital.latitude|default:"0" }};
+  const hLng = {{ hospital.longitude|default:"0" }};
+
+  map = L.map('map').setView([hLat || 10.0, hLng || 76.0], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+  }).addTo(map);
+
+  emergencyLayer.addTo(map);
+
+  if (hLat && hLng) {
+    hospitalMarker = L.marker([hLat, hLng]).addTo(map).bindPopup("{{ hospital.hospital_name }} (Hospital)");
+  }
+}
+
+async function loadEmergencies() {
+  emergencyLayer.clearLayers();
+
+  const radius = document.getElementById("radius").value || 10;
+  const res = await fetch(`/hospital/emergencies/api/?radius=${radius}&hours=24`);
+  const data = await res.json();
+
+  if (data.error) {
+    alert(data.error);
+    return;
+  }
+
+  document.getElementById("count").innerText = `Alerts: ${data.count}`;
+
+  // show radius circle around hospital
+  const h = data.hospital;
+  L.circle([h.lat, h.lng], { radius: radius * 1000 }).addTo(emergencyLayer);
+
+  // hospital marker
+  L.marker([h.lat, h.lng]).addTo(emergencyLayer).bindPopup(`${h.name} (Hospital)`);
+
+  // emergency markers
+  data.emergencies.forEach(e => {
+    const gmap = `https://www.google.com/maps?q=${e.lat},${e.lng}`;
+    const popup = `
+      <b>Emergency Alert</b><br>
+      Patient: ${e.patient_name}<br>
+      Contact: ${e.patient_contact}<br>
+      Time: ${e.created_at}<br>
+      Distance: ${e.distance_km} km<br>
+      <a href="${gmap}" target="_blank">Open in Google Maps</a>
+    `;
+    L.marker([e.lat, e.lng]).addTo(emergencyLayer).bindPopup(popup);
+  });
+}
+
+// auto refresh every 15 seconds (optional)
+setInterval(() => {
+  if (map) loadEmergencies();
+}, 15000);
+
+initMap();
+loadEmergencies();
+</script>
+{% endblock %}

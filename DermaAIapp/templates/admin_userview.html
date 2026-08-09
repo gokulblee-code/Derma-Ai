@@ -1,0 +1,476 @@
+{% extends "adminheader.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f5f7fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px;
+    }
+    
+    .header-container {
+        background: rgb(182, 109, 255);
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(182, 109, 255, 0.2);
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+        border: none;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(182, 109, 255, 0.15);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+    
+    .table-header {
+        background: rgb(182, 109, 255);
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .table-custom {
+        margin-bottom: 0;
+    }
+    
+    .table-custom thead th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e0d5f5;
+        font-weight: 600;
+        color: #495057;
+        padding: 15px 20px;
+        white-space: nowrap;
+    }
+    
+    .table-custom tbody td {
+        padding: 15px 20px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .table-custom tbody tr:hover {
+        background-color: rgba(182, 109, 255, 0.05);
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: rgb(182, 109, 255);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        color: #343a40;
+        margin-bottom: 2px;
+    }
+    
+    .user-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        min-width: 90px;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+    
+    .btn-primary-custom {
+        background-color: rgb(182, 109, 255);
+        border-color: rgb(182, 109, 255);
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: rgb(162, 89, 235);
+        border-color: rgb(162, 89, 235);
+    }
+    
+    .btn-outline-primary-custom {
+        color: rgb(182, 109, 255);
+        border-color: rgb(182, 109, 255);
+    }
+    
+    .btn-outline-primary-custom:hover {
+        background-color: rgb(182, 109, 255);
+        color: white;
+        border-color: rgb(182, 109, 255);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-state i {
+        font-size: 60px;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    
+    .modal-header {
+        background: rgb(182, 109, 255);
+        color: white;
+    }
+    
+    .detail-group {
+        margin-bottom: 15px;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    .detail-value {
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .badge-custom {
+        background-color: rgba(182, 109, 255, 0.1);
+        color: rgb(182, 109, 255);
+    }
+    
+    @media (max-width: 768px) {
+        .table-custom {
+            font-size: 0.9rem;
+        }
+        
+        .table-custom thead {
+            display: none;
+        }
+        
+        .table-custom tbody tr {
+            display: block;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .table-custom tbody td {
+            display: block;
+            text-align: right;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table-custom tbody td:before {
+            content: attr(data-label);
+            float: left;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .action-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="header-container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2">
+                    <i class="fas fa-users me-2"></i>User Management
+                </h1>
+                <p class="mb-0 opacity-75">Manage and view all registered users</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="badge bg-white text-purple p-2">
+                    <i class="fas fa-users me-1"></i>
+                    <span id="totalUsers">{{ users|length }}</span> Total Users
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+   
+
+    <!-- Users Table -->
+    <div class="table-container">
+        <div class="table-header" >
+            <div class="d-flex justify-content-between align-items-center" >
+                <h5 class="mb-0" >
+                    <i class="fas fa-list me-2" ></i>Registered Users
+                </h5>
+                <small class="text-muted">
+                    Showing {{ users|length }} users
+                </small>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th style="width: 250px;">
+                            <i class="fas fa-user me-2" style="color: rgb(182, 109, 255)"></i>User Information
+                        </th>
+                        <th>
+                            <i class="fas fa-phone me-2" style="color: rgb(182, 109, 255)"></i>Contact
+                        </th>
+                        <th>
+                            <i class="fas fa-envelope me-2" style="color: rgb(182, 109, 255)"></i>Email
+                        </th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    {% if users %}
+                        {% for user in users %}
+                        <tr>
+                            <!-- Serial Number -->
+                            <td data-label="#">
+                                <div class="text-muted">{{ forloop.counter }}</div>
+                            </td>
+                            
+                            <!-- User Information -->
+                            <td data-label="User Information">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="user-name">{{ user.name }}</div>
+                                        <div class="user-meta">
+                                            <span>User ID: {{ user.loginid.username }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Contact -->
+                            <td data-label="Contact">
+                                <div>
+                                    <i class="fas fa-phone text-muted me-1"></i>
+                                    {{ user.contact }}
+                                </div>
+                            </td>
+                            
+                            <!-- Email -->
+                            <td data-label="Email">
+                                <div>
+                                    <i class="fas fa-envelope text-muted me-1"></i>
+                                    <small>{{ user.loginid.email|truncatechars:25 }}</small>
+                                </div>
+                            </td>
+                            
+                            <!-- Actions -->
+                         
+                        </tr>
+                        
+                        <!-- Modal for Detailed View -->
+                        <div class="modal fade" id="userModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-user me-2"></i>
+                                            User Details - {{ user.name }}
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <!-- Personal Info -->
+                                            <div class="col-md-6">
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Full Name</div>
+                                                    <div class="detail-value">{{ user.name }}</div>
+                                                </div>
+                                                {% if user.gender %}
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Gender</div>
+                                                    <div class="detail-value">{{ user.gender }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if user.dob %}
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Date of Birth</div>
+                                                    <div class="detail-value">{{ user.dob }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Account Info -->
+                                            <div class="col-md-6">
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Username</div>
+                                                    <div class="detail-value">{{ user.loginid.username }}</div>
+                                                </div>
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Email Address</div>
+                                                    <div class="detail-value">{{ user.loginid.email }}</div>
+                                                </div>
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Phone Number</div>
+                                                    <div class="detail-value">{{ user.contact }}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Additional Info -->
+                                            {% if user.address %}
+                                            <div class="col-12 mt-3">
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Address</div>
+                                                    <div class="detail-value">{{ user.address }}</div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if user.district or user.state %}
+                                            <div class="col-md-6 mt-3">
+                                                {% if user.district %}
+                                                <div class="detail-group">
+                                                    <div class="detail-label">District</div>
+                                                    <div class="detail-value">{{ user.district }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                {% if user.state %}
+                                                <div class="detail-group">
+                                                    <div class="detail-label">State</div>
+                                                    <div class="detail-value">{{ user.state }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            <!-- Account Status -->
+                                            <div class="col-12 mt-3">
+                                                <div class="detail-group">
+                                                    <div class="detail-label">Account Status</div>
+                                                    <div class="mt-2">
+                                                        {% if user.loginid.login_status == 1 %}
+                                                            <span class="badge bg-success p-2">
+                                                                <i class="fas fa-check-circle me-1"></i>Active
+                                                            </span>
+                                                            <p class="text-muted mt-2 mb-0">This user account is active and can access the system.</p>
+                                                        {% elif user.loginid.login_status == 2 %}
+                                                            <span class="badge bg-danger p-2">
+                                                                <i class="fas fa-times-circle me-1"></i>Blocked
+                                                            </span>
+                                                            <p class="text-muted mt-2 mb-0">This user account has been blocked.</p>
+                                                        {% else %}
+                                                            <span class="badge bg-warning p-2">
+                                                                <i class="fas fa-clock me-1"></i>Pending
+                                                            </span>
+                                                            <p class="text-muted mt-2 mb-0">This user account is pending activation.</p>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button class="btn btn-primary-custom">
+                                            <i class="fas fa-edit me-1"></i> Edit User
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-users"></i>
+                                    <h4 class="h5 text-muted mb-3">No Users Found</h4>
+                                    <p class="text-muted mb-0">No users have registered yet. New registrations will appear here.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer Info -->
+    {% if users %}
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center text-muted py-3">
+                <small>
+                    <i class="fas fa-info-circle me-1"></i>
+                    Showing {{ users|length }} user(s) • 
+                    Last updated: {% now "F j, Y, g:i a" %}
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add responsive labels for mobile
+        function addResponsiveLabels() {
+            if (window.innerWidth <= 768) {
+                const tableHeaders = document.querySelectorAll('.table-custom thead th');
+                const tableCells = document.querySelectorAll('.table-custom tbody td');
+                
+                tableCells.forEach((cell, index) => {
+                    const headerIndex = index % tableHeaders.length;
+                    if (tableHeaders[headerIndex]) {
+                        cell.setAttribute('data-label', tableHeaders[headerIndex].textContent.trim());
+                    }
+                });
+            }
+        }
+        
+        addResponsiveLabels();
+        window.addEventListener('resize', addResponsiveLabels);
+        
+        // Update user count
+        const totalUsers = document.getElementById('totalUsers');
+        if (totalUsers) {
+            totalUsers.textContent = {{ users|length }};
+        }
+        
+        // Apply custom color to badges
+        document.querySelectorAll('.badge.bg-white.text-purple').forEach(badge => {
+            badge.style.color = 'rgb(182, 109, 255)';
+        });
+    });
+</script>
+{% endblock %}

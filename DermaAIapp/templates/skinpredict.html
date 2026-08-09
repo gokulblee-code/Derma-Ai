@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skin Disease Chatbot</title>
+  <style>
+    :root {
+      --dark-green: #213321;
+      --green-1: #273e27;
+      --green-2: #2f4d2f;
+      --green-3: #3c603b;
+      --green-4: #517b4e;
+      --green-5: #789c74;
+      --green-6: #9fba9b;
+      --green-7: #c7d7c3;
+      --green-8: #e3ebe0;
+    }
+
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--green-8);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #chatContainer {
+      width: 95%;
+      max-width: 450px;
+      height: 90vh;
+      background: var(--green-7);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #chatOutput {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: var(--green-8);
+    }
+
+    #chatOutput p {
+      margin: 0;
+      padding: 12px 16px;
+      border-radius: 18px;
+      max-width: 75%;
+      word-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideIn 0.4s forwards;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: var(--green-4);
+      color: white;
+      text-align: right;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: var(--green-6);
+      color: #213321;
+      text-align: left;
+    }
+
+    .typing-indicator {
+      font-style: italic;
+      color: #666;
+      align-self: flex-start;
+    }
+
+    #inputContainer {
+      display: flex;
+      padding: 10px;
+      background: var(--green-7);
+      border-top: 1px solid var(--green-5);
+      gap: 10px;
+    }
+
+    #fileInput {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--green-5);
+      border-radius: 8px;
+      background: white;
+      font-size: 14px;
+    }
+
+    #sendButton {
+      background: var(--green-3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    #sendButton:hover {
+      background: var(--green-2);
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="chatContainer">
+  <div id="chatOutput"></div>
+  <div id="inputContainer">
+    <input type="file" id="fileInput" accept="image/*" />
+    <button id="sendButton">Send</button>
+  </div>
+</div>
+
+<script>
+const chatOutput = document.getElementById('chatOutput');
+const fileInput  = document.getElementById('fileInput');
+const sendButton = document.getElementById('sendButton');
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(cookie => {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+      }
+    });
+  }
+  return cookieValue;
+}
+
+sendButton.addEventListener('click', () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  appendMessage(file.name, 'user-message');
+  scrollBottom();
+
+  const typing = appendTyping();
+  scrollBottom();
+
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+  fetch('/predict_skin_disease/', {
+    method: 'POST',
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    typing.remove();
+
+    const messages = [];
+    if (data.error) {
+      messages.push(`${data.error} (confidence: ${data.confidence?.toFixed(2) ?? '—'})`);
+    } else if (data.alert) {
+      messages.push(
+        `<strong>Disease:</strong> ${data.predicted_class} (confidence: ${data.confidence?.toFixed(2)})`,
+        `<span style="color:#c0392b; font-weight:bold;">${data.alert}</span>`
+      );
+    } else {
+      messages.push(
+        `<strong>Disease:</strong> ${data.predicted_class} (confidence: ${data.confidence?.toFixed(2)})`,
+        `<strong>Remedy:</strong> ${data.remedy}`,
+        `<a href="${data.remedy_link}" target="_blank">View Remedy Source</a>`,
+        `<strong>Medicine:</strong> ${data.medicine}`,
+        `<a href="${data.medicine_link}" target="_blank">View Medicine Source</a>`
+      );
+    }
+
+    // Show messages one by one
+    showMessagesSequentially(messages);
+    fileInput.value = '';
+  })
+  .catch(err => {
+    typing.textContent = 'Sorry, something went wrong.';
+    console.error(err);
+  });
+});
+
+function appendMessage(message, className) {
+  const p = document.createElement('p');
+  p.className = className;
+  p.innerHTML = message;
+  chatOutput.appendChild(p);
+}
+
+function appendTyping() {
+  const typing = document.createElement('p');
+  typing.className = 'typing-indicator';
+  typing.textContent = 'Analyzing image...';
+  chatOutput.appendChild(typing);
+  return typing;
+}
+
+function showMessagesSequentially(messages) {
+  let delay = 0;
+  messages.forEach((msg, index) => {
+    setTimeout(() => {
+      appendMessage(msg, 'bot-message');
+      scrollBottom();
+    }, delay);
+    delay += 500; // 0.5s between each incoming message
+  });
+}
+
+function scrollBottom() {
+  chatOutput.scrollTop = chatOutput.scrollHeight;
+}
+
+window.onload = () => {
+  appendMessage("Upload a skin image and I'll tell you what I find!", 'bot-message');
+  scrollBottom();
+};
+</script>
+
+</body>
+</html>

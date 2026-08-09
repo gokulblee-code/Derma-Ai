@@ -1,0 +1,13 @@
+{% extends 'doctorheader.html' %}
+{% block content %}
+<body>
+    <div class="appointment-container">
+        <!-- <h2>Appointment</h2> -->
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Schedule</button>
+        </form>
+    </div>
+</body>
+{% endblock %}

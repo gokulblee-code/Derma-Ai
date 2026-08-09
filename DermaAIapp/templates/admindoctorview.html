@@ -1,0 +1,484 @@
+{% extends 'adminheader.html' %}
+{% block content %}
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header Card -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="h4 mb-0"><i class="fas fa-user-md me-2"></i>Doctor Registrations</h2>
+                            <span class="badge bg-light text-primary">{{ doctors|length }} Doctors</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3 ps-4">
+                                            <i class="fas fa-user me-2"></i>Doctor Info
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-map-marker-alt me-2"></i>Location
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-graduation-cap me-2"></i>Specialization
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-hospital me-2"></i>Hospital
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-phone me-2"></i>Contact
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-envelope me-2"></i>Email
+                                        </th>
+                                        <th class="py-3 text-center">
+                                            <i class="fas fa-cogs me-2"></i>Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if doctors %}
+                                        {% for doctor in doctors %}
+                                        <tr class="align-middle">
+                                            <!-- Doctor Information -->
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="fas fa-user-md text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">{{ doctor.name }}</h6>
+                                                        <div class="d-flex flex-wrap gap-2">
+                                                            <small class="badge bg-info bg-opacity-10 text-info">{{ doctor.gender }}</small>
+                                                            <small class="text-muted">DOB: {{ doctor.dob }}</small>
+                                                        </div>
+                                                        <small class="text-muted">Exp: {{ doctor.experience }} years</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Location -->
+                                            <td>
+                                                <div class="location-info">
+                                                    <div class="mb-1">
+                                                        <i class="fas fa-map-pin text-muted me-1"></i>
+                                                        <small>{{ doctor.address }}</small>
+                                                    </div>
+                                                    <div>
+                                                        <small>{{ doctor.district }}, {{ doctor.state }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Specialization & Qualification -->
+                                            <td>
+                                                <div class="specialization-info">
+                                                    <div class="fw-medium text-primary mb-1">
+                                                        <i class="fas fa-stethoscope me-1"></i>{{ doctor.specialization }}
+                                                    </div>
+                                                    <small class="text-muted">{{ doctor.qualification }}</small>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Hospital -->
+                                            <td>
+                                                <div class="hospital-info">
+                                                    <i class="fas fa-hospital text-muted me-1"></i>
+                                                    <span>{{ doctor.hospital_name }}</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Contact -->
+                                            <td>
+                                                <div class="contact-info">
+                                                    <i class="fas fa-phone text-muted me-1"></i>
+                                                    <span>{{ doctor.contact }}</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Email -->
+                                            <td>
+                                                <div class="email-info">
+                                                    <i class="fas fa-envelope text-muted me-1"></i>
+                                                    <small>{{ doctor.loginid.email|truncatechars:20 }}</small>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Actions -->
+                                            <td class="text-center">
+                                                <div class="d-flex flex-column gap-2">
+                                                    <!-- Approval Status -->
+                                                    <div>
+                                                        {% if doctor.loginid.login_status == 1 %}
+                                                            <span class="badge bg-success">
+                                                                <i class="fas fa-check-circle me-1"></i>Approved
+                                                            </span>
+                                                        {% elif doctor.loginid.login_status == 2 %}
+                                                            <span class="badge bg-danger">
+                                                                <i class="fas fa-times-circle me-1"></i>Rejected
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-warning">
+                                                                <i class="fas fa-clock me-1"></i>Pending
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    <!-- Action Buttons -->
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        {% if doctor.loginid.login_status == 0 %}
+                                                            <a href="{% url 'admindoctorapprove' doctor.loginid.id %}" 
+                                                               class="btn btn-success btn-sm"
+                                                               data-bs-toggle="tooltip"
+                                                               title="Approve Doctor">
+                                                                <i class="fas fa-check"></i> Approve
+                                                            </a>
+                                                            <a href="{% url 'admindoctorreject' doctor.loginid.id %}" 
+                                                               class="btn btn-danger btn-sm"
+                                                               data-bs-toggle="tooltip"
+                                                               title="Reject Doctor"
+                                                               onclick="return confirm('Are you sure you want to reject this doctor?');">
+                                                                <i class="fas fa-times"></i> Reject
+                                                            </a>
+                                                        {% else %}
+                                                            <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                                <i class="fas fa-check"></i> Approved
+                                                            </button>
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    <!-- View Details Button -->
+                                                    <div>
+                                                        <button class="btn btn-outline-info btn-sm view-details"
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#doctorModal{{ doctor.id }}">
+                                                            <i class="fas fa-eye me-1"></i> View Details
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Doctor Details Modal -->
+                                        <div class="modal fade" id="doctorModal{{ doctor.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title">
+                                                            <i class="fas fa-user-md me-2"></i>
+                                                            Doctor Details - {{ doctor.name }}
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <!-- Personal Info -->
+                                                            <div class="col-md-6 mb-4">
+                                                                <h6 class="border-bottom pb-2 mb-3">
+                                                    <i class="fas fa-user me-2"></i>Personal Information
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-6 mb-2">
+                                                        <small class="text-muted">Full Name</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.name }}</p>
+                                                    </div>
+                                                    <div class="col-6 mb-2">
+                                                        <small class="text-muted">Gender</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.gender }}</p>
+                                                    </div>
+                                                    <div class="col-6 mb-2">
+                                                        <small class="text-muted">Date of Birth</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.dob }}</p>
+                                                    </div>
+                                                    <div class="col-6 mb-2">
+                                                        <small class="text-muted">Experience</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.experience }} years</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Contact Info -->
+                                            <div class="col-md-6 mb-4">
+                                                <h6 class="border-bottom pb-2 mb-3">
+                                                    <i class="fas fa-address-card me-2"></i>Contact Information
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-12 mb-2">
+                                                        <small class="text-muted">Email Address</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.loginid.email }}</p>
+                                                    </div>
+                                                    <div class="col-12 mb-2">
+                                                        <small class="text-muted">Phone Number</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.contact }}</p>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <small class="text-muted">Address</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.address }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Professional Info -->
+                                            <div class="col-md-6 mb-4">
+                                                <h6 class="border-bottom pb-2 mb-3">
+                                                    <i class="fas fa-graduation-cap me-2"></i>Professional Information
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-12 mb-2">
+                                                        <small class="text-muted">Specialization</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.specialization }}</p>
+                                                    </div>
+                                                    <div class="col-12 mb-2">
+                                                        <small class="text-muted">Qualification</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.qualification }}</p>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <small class="text-muted">Hospital</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.hospital_name }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Location Info -->
+                                            <div class="col-md-6 mb-4">
+                                                <h6 class="border-bottom pb-2 mb-3">
+                                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-6 mb-2">
+                                                        <small class="text-muted">State</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.state }}</p>
+                                                    </div>
+                                                    <div class="col-6 mb-2">
+                                                        <small class="text-muted">District</small>
+                                                        <p class="mb-0 fw-medium">{{ doctor.district }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Status Info -->
+                                            <div class="col-12">
+                                                <h6 class="border-bottom pb-2 mb-3">
+                                                    <i class="fas fa-info-circle me-2"></i>Registration Status
+                                                </h6>
+                                                <div class="d-flex align-items-center">
+                                                    {% if doctor.loginid.login_status == 1 %}
+                                                        <span class="badge bg-success p-2 me-3">
+                                                            <i class="fas fa-check-circle me-1"></i>Approved
+                                                        </span>
+                                                         <a href="{% url 'admindoctorreject' doctor.loginid.id %}" class="btn btn-danger">
+                                                <i class="fas fa-times me-1"></i> Reject
+                                            </a>
+                                                        <small class="text-muted">This doctor has been approved and can access the system.</small>
+                                                    {% elif doctor.loginid.login_status == 2 %}
+                                                         <a href="{% url 'admindoctorapprove' doctor.loginid.id %}" class="btn btn-success">
+                                                <i class="fas fa-check me-1"></i> Approve
+                                            </a>
+                                                        <span class="badge bg-danger p-2 me-3">
+                                                            <i class="fas fa-times-circle me-1"></i>Rejected
+                                                        </span>
+                                                        <small class="text-muted">This doctor registration has been rejected.</small>
+                                                    {% else %}
+                                                        <span class="badge bg-warning p-2 me-3">
+                                                            <i class="fas fa-clock me-1"></i>Pending Approval
+                                                        </span>
+                                                        <small class="text-muted">Awaiting admin approval.</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        {% if doctor.loginid.login_status == 0 %}
+                                            <a href="{% url 'admindoctorapprove' doctor.loginid.id %}" class="btn btn-success">
+                                                <i class="fas fa-check me-1"></i> Approve
+                                            </a>
+                                            <a href="{% url 'admindoctorreject' doctor.loginid.id %}" class="btn btn-danger">
+                                                <i class="fas fa-times me-1"></i> Reject
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="fas fa-user-md fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No Doctor Registrations Found</h5>
+                                    <p class="text-muted mb-0">No doctors have registered yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    {% if doctors %}
+    <div class="card-footer bg-light py-3">
+        <div class="row">
+            <div class="col-md-6">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Showing {{ doctors|length }} doctor registration(s)
+                </small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-1"></i>Filter Status
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">All Doctors</a></li>
+                        <li><a class="dropdown-item" href="#">Pending Approval</a></li>
+                        <li><a class="dropdown-item" href="#">Approved</a></li>
+                        <li><a class="dropdown-item" href="#">Rejected</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Stats Cards -->
+{% if doctors %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="text-primary mb-2">
+                    <i class="fas fa-user-md fa-2x"></i>
+                </div>
+                <h3 class="h2 fw-bold">{{ doctors|length }}</h3>
+                <p class="text-muted mb-0">Total Doctors</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="text-success mb-2">
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+                <h3 class="h2 fw-bold">{{ approved_count|default:"0" }}</h3>
+                <p class="text-muted mb-0">Approved</p>
+                
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="text-warning mb-2">
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+                <h3 class="h2 fw-bold">{{ pending_count|default:"0" }}</h3>
+                <p class="text-muted mb-0">Pending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="text-danger mb-2">
+                    <i class="fas fa-times-circle fa-2x"></i>
+                </div>
+                <h3 class="h2 fw-bold">{{ rejected_count|default:"0" }}</h3>
+                <p class="text-muted mb-0">Rejected</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Bootstrap JS for modals and tooltips -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        .avatar-sm {
+            width: 45px;
+            height: 45px;
+        }
+        
+        .table > :not(caption) > * > * {
+            vertical-align: middle;
+            padding: 1rem 0.75rem;
+        }
+        
+        .card {
+            border-radius: 12px;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .badge.bg-opacity-10 {
+            --bs-bg-opacity: 0.1;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            min-width: 90px;
+        }
+        
+        .location-info, .specialization-info, .hospital-info, .contact-info, .email-info {
+            max-width: 180px;
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+        }
+        
+        .modal-header {
+            border-radius: 12px 12px 0 0;
+        }
+        
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8rem;
+                min-width: 80px;
+            }
+            
+            .location-info, .specialization-info, .hospital-info, .contact-info, .email-info {
+                max-width: 120px;
+            }
+        }
+    </style>
+    
+    <script>
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+{% endblock %}

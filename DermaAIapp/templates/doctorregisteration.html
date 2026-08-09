@@ -1,0 +1,268 @@
+{% extends 'landingheader.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center mb-0">Doctor Registration</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Ambulance Details -->
+                        {% for field in doctor_form %}
+    <div class="mb-3">
+        <label class="form-label fw-semibold">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+
+        {% if field.name == 'gender' %}
+            <div class="d-flex gap-3">
+                {% for radio in field %}
+                    <div class="form-check">
+                        {{ radio.tag }}
+                        <label class="form-check-label">
+                            {{ radio.choice_label }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ field }}
+        {% endif %}
+
+        {% if field.errors %}
+            <div class="text-danger small mt-1">
+                {{ field.errors|join:", " }}
+            </div>
+        {% endif %}
+        {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+    </div>
+{% endfor %}
+
+                        
+                        <!-- Login Credentials (without heading) -->
+                        {% for field in login_form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ field.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-ambulance me-2"></i>Register Doctor
+                            </button>
+                        </div>
+                        
+   <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("form");
+    if (!form) return;
+
+    const touched = new Set();
+    let submitted = false;
+
+    const submitButton = form.querySelector("button[type='submit']");
+
+    function getAllFields() {
+        return Array.from(form.querySelectorAll("input, select, textarea"))
+            .filter(el =>
+                el.name &&
+                el.type !== "hidden" &&
+                el.type !== "submit" &&
+                el.type !== "button"
+            );
+    }
+
+    function ensureFeedbackEl(input) {
+        let fb = input.parentElement.querySelector(".js-feedback");
+        if (!fb) {
+            fb = document.createElement("small");
+            fb.className = "js-feedback";
+            fb.style.display = "block";
+            fb.style.marginTop = "4px";
+            input.parentElement.appendChild(fb);
+        }
+        return fb;
+    }
+
+    function setInvalid(input, msg) {
+        const fb = ensureFeedbackEl(input);
+        fb.textContent = "❌ " + msg;
+        fb.style.color = "red";
+        input.style.borderColor = "red";
+    }
+
+    function setValid(input, msg = "") {
+        const fb = ensureFeedbackEl(input);
+        fb.textContent = msg ? "✅ " + msg : "";
+        fb.style.color = "green";
+        input.style.borderColor = "#28a745";
+    }
+
+    function clearFeedback(input) {
+        const fb = input.parentElement.querySelector(".js-feedback");
+        if (fb) fb.textContent = "";
+        input.style.borderColor = "#d9d9d9";
+    }
+
+    // 🔥 UNIVERSAL RULES (only apply if field exists)
+   const rules = {
+    name: {
+        pattern: /^[A-Za-z ]{2,}$/,
+        invalidMsg: "Only letters and spaces allowed",
+        validMsg: "Valid name"
+    },
+    hospital_name: {
+        pattern: /^[A-Za-z ]{2,}$/,
+        invalidMsg: "Only letters allowed",
+        validMsg: "Valid name"
+    },
+    email: {
+        pattern: /^[^\s@]+@[^\s@]+\.com$/,
+        invalidMsg: "Email must end with .com",
+        validMsg: "Valid email"
+    },
+    contact: {
+        pattern: /^[1-9]\d{9}$/,
+        invalidMsg: "Must start 1-9 & 10 digits",
+        validMsg: "Valid phone"
+    },
+    password: {
+    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/,
+    invalidMsg: "Min 8 chars with upper, lower, number & special char",
+    validMsg: "Strong password"
+    },
+        pincode:{
+        pattern: /^[1-9][0-9]{5}$/,
+        invalidMsg: "Must 6 number",
+        validMsg: "valid pincode"
+    },
+    age: {
+        pattern: /^(?:1[01][0-9]|120|[1-9][0-9]?)$/,
+        invalidMsg: "Invalid age",
+        validMsg: "Valid age"
+    },
+    DOB: {
+        custom: (value) => {
+            if (!value) return false;
+            const dob = new Date(value);
+            const today = new Date();
+            return dob <= today;
+        },
+        invalidMsg: "Invalid DOB",
+        validMsg: "Valid DOB"
+    }
+};
+    function isEmpty(el) {
+        return (el.value || "").trim() === "";
+    }
+
+    function validateField(el, showMsg = true) {
+        const name = el.name;
+        const rule = rules[name];
+
+        if (!rule) return true; // 🔥 Ignore unknown fields
+
+        const value = (el.value || "").trim();
+
+        if (isEmpty(el)) {
+            if (showMsg) setInvalid(el, "Required");
+            return false;
+        }
+
+        if (rule.pattern && !rule.pattern.test(value)) {
+            if (showMsg) setInvalid(el, rule.invalidMsg);
+            return false;
+        }
+
+        if (rule.custom && !rule.custom(value)) {
+            if (showMsg) setInvalid(el, rule.invalidMsg);
+            return false;
+        }
+
+        if (showMsg) setValid(el, rule.validMsg);
+        return true;
+    }
+
+    function validateAll(showMsg = true) {
+        let ok = true;
+
+        getAllFields().forEach(el => {
+            const shouldShow = showMsg && (submitted || touched.has(el.name));
+            if (!validateField(el, shouldShow)) ok = false;
+        });
+
+        return ok;
+    }
+
+    function toggleSubmit() {
+        if (submitButton) {
+            submitButton.disabled = !validateAll(false);
+        }
+    }
+
+    // 🔥 EVENTS
+    getAllFields().forEach(el => {
+        const evt = (el.type === "select-one" || el.type === "file") ? "change" : "input";
+
+        el.addEventListener(evt, () => {
+            touched.add(el.name);
+            validateField(el, true);
+            toggleSubmit();
+        });
+
+        el.addEventListener("blur", () => {
+            touched.add(el.name);
+            validateField(el, true);
+            toggleSubmit();
+        });
+    });
+
+    form.addEventListener("submit", (e) => {
+        submitted = true;
+        if (!validateAll(true)) {
+            e.preventDefault();
+            alert("❌ Fix errors before submitting");
+        }
+    });
+
+    toggleSubmit();
+});
+</script>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this script to apply Bootstrap classes to form fields -->
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to all form inputs
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.classList.add('form-control');
+    });
+});
+</script> -->
+{% endblock %}

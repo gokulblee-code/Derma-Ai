@@ -1,0 +1,725 @@
+{% extends 'userheader.html' %}
+{% block content %}
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <!-- Profile Update Card -->
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white py-4">
+                        <div class="text-center">
+                            <h2 class="h3 mb-0"><i class="fas fa-user-md me-2"></i>Update Profile</h2>
+                            <p class="mb-0 opacity-75">Update your personal and professional information</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5">
+                        <form method="POST" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- Professional Information Section -->
+                            <div class="section-header mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-briefcase-medical me-2"></i>Professional Information
+                                </h5>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Form 2 Fields (Doctor Info) -->
+                                {% for field in form %}
+                                <div class="col-md-12 mb-4">
+                                    <div class="form-group">
+                                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                            {{ field.label }}
+                                            {% if field.field.required %}
+                                                <span class="text-danger">*</span>
+                                            {% endif %}
+                                        </label>
+                                        
+                                        <!-- Custom Field Styling for Doctor Form -->
+                                        {% if field.name == 'specialization' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-warning text-white">
+                                                    <i class="fas fa-stethoscope"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                        {% elif field.name == 'hospital_name' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-danger text-white">
+                                                    <i class="fas fa-hospital"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                        {% elif field.name == 'experience' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-info text-white">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </span>
+                                                {{ field }}
+                                                <span class="input-group-text">years</span>
+                                            </div>
+                                        {% elif field.name == 'qualification' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-success text-white">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                        {% elif field.name == 'gender' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-secondary text-white">
+                                                    <i class="fas fa-venus-mars"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                        {% elif field.name == 'dob' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                        {% else %}
+                                            {{ field }}
+                                        {% endif %}
+                                        
+                                        <!-- Help Text -->
+                                        {% if field.help_text %}
+                                            <div class="form-text text-muted mt-2">
+                                                <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <!-- Error Messages -->
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger mt-2 py-2 px-3">
+                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                {% for error in field.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Personal Information Section -->
+                            <div class="section-header mb-4 mt-5">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-user-circle me-2"></i>Personal Information
+                                </h5>
+                                <p class="text-muted mb-0">Update your login credentials</p>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Name and Contact Fields First -->
+                                {% for field in form1 %}
+                                    {% if field.name != 'email' and field.name != 'password' %}
+                                    <div class="col-md-12 mb-4">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                                {{ field.label }}
+                                                {% if field.field.required %}
+                                                    <span class="text-danger">*</span>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            <!-- Custom Field Styling -->
+                                            {% if field.name == 'name' %}
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-info text-white">
+                                                        <i class="fas fa-user"></i>
+                                                    </span>
+                                                    {{ field }}
+                                                </div>
+                                            {% elif field.name == 'contact' %}
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-success text-white">
+                                                        <i class="fas fa-phone"></i>
+                                                    </span>
+                                                    {{ field }}
+                                                </div>
+                                            {% else %}
+                                                {{ field }}
+                                            {% endif %}
+                                            
+                                            <!-- Help Text -->
+                                            {% if field.help_text %}
+                                                <div class="form-text text-muted mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <!-- Error Messages -->
+                                            {% if field.errors %}
+                                                <div class="alert alert-danger mt-2 py-2 px-3">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                                    {% for error in field.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <!-- Email Field -->
+                                {% for field in form1 %}
+                                    {% if field.name == 'email' %}
+                                    <div class="col-md-12 mb-4">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                                {{ field.label }}
+                                                {% if field.field.required %}
+                                                    <span class="text-danger">*</span>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-envelope"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                            
+                                            <!-- Help Text -->
+                                            {% if field.help_text %}
+                                                <div class="form-text text-muted mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <!-- Error Messages -->
+                                            {% if field.errors %}
+                                                <div class="alert alert-danger mt-2 py-2 px-3">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                                    {% for error in field.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <!-- Password Field -->
+                                {% for field in form1 %}
+                                    {% if field.name == 'password' %}
+                                    <div class="col-md-12 mb-4">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                                {{ field.label }}
+                                                {% if field.field.required %}
+                                                    <span class="text-danger">*</span>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-warning text-white">
+                                                    <i class="fas fa-lock"></i>
+                                                </span>
+                                                {{ field }}
+                                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <!-- Help Text -->
+                                            {% if field.help_text %}
+                                                <div class="form-text text-muted mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <!-- Password strength indicator -->
+                                            <div class="password-strength mt-2">
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar" id="passwordStrength" style="width: 0%;"></div>
+                                                </div>
+                                                <small class="text-muted" id="passwordHint"></small>
+                                            </div>
+                                            
+                                            <!-- Error Messages -->
+                                            {% if field.errors %}
+                                                <div class="alert alert-danger mt-2 py-2 px-3">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                                    {% for error in field.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <a href="{% url 'doctorhome' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancel
+                                </a>
+                                
+                                <div class="d-flex gap-3">
+                                    <button type="reset" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to reset all fields?');">
+                                        <i class="fas fa-redo me-2"></i>Reset
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-save me-2"></i>Update Profile
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Form Footer -->
+                    <div class="card-footer bg-light py-3">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    Your information is secure and will be updated immediately.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .section-header {
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            background-color: #fff;
+        }
+        
+        .form-label {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .input-group-text {
+            border: 2px solid #dee2e6;
+            border-right: none;
+            min-width: 45px;
+            justify-content: center;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+        }
+        
+        .input-group .form-control:focus {
+            border-left: none;
+            box-shadow: none;
+        }
+        
+        .input-group:focus-within .input-group-text {
+            border-color: #0d6efd;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #6c757d;
+        }
+        
+        .btn-outline-danger {
+            border-color: #dc3545;
+        }
+        
+        .alert-danger {
+            border-radius: 6px;
+            border: none;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+        }
+        
+        .password-strength {
+            display: none;
+        }
+        
+        .password-strength.active {
+            display: block;
+        }
+        
+        .progress {
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        /* Style Django form inputs */
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            outline: none;
+            background-color: #fff;
+        }
+        
+        /* Textarea specific */
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Checkbox and Radio specific */
+        input[type="checkbox"], input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        /* Required field indicator */
+        .text-danger {
+            font-weight: bold;
+        }
+        
+        /* Loading state for submit button */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+        
+        .btn-loading:after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Form section animation */
+        .form-group {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const passwordField = form.querySelector('[name="password"]');
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const passwordStrengthBar = document.getElementById('passwordStrength');
+            const passwordHint = document.getElementById('passwordHint');
+            const passwordStrengthContainer = document.querySelector('.password-strength');
+            
+            // Toggle password visibility
+            if (togglePasswordBtn && passwordField) {
+                togglePasswordBtn.addEventListener('click', function() {
+                    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordField.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+                
+                // Show password strength indicator when typing
+                passwordField.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                });
+            }
+            
+            // Password strength checker
+            function checkPasswordStrength(password) {
+                if (!password) {
+                    passwordStrengthContainer.classList.remove('active');
+                    return;
+                }
+                
+                passwordStrengthContainer.classList.add('active');
+                
+                let strength = 0;
+                let hints = [];
+                
+                // Length check
+                if (password.length >= 8) strength += 25;
+                else hints.push('At least 8 characters');
+                
+                // Lowercase check
+                if (/[a-z]/.test(password)) strength += 25;
+                else hints.push('One lowercase letter');
+                
+                // Uppercase check
+                if (/[A-Z]/.test(password)) strength += 25;
+                else hints.push('One uppercase letter');
+                
+                // Number check
+                if (/[0-9]/.test(password)) strength += 15;
+                else hints.push('One number');
+                
+                // Special character check
+                if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+                else hints.push('One special character');
+                
+                // Update progress bar
+                passwordStrengthBar.style.width = strength + '%';
+                
+                // Update color based on strength
+                if (strength < 50) {
+                    passwordStrengthBar.className = 'progress-bar bg-danger';
+                    passwordHint.textContent = 'Weak password. ' + (hints.length > 0 ? 'Add: ' + hints.join(', ') : '');
+                } else if (strength < 75) {
+                    passwordStrengthBar.className = 'progress-bar bg-warning';
+                    passwordHint.textContent = 'Moderate password. ' + (hints.length > 0 ? 'Consider adding: ' + hints.join(', ') : '');
+                } else {
+                    passwordStrengthBar.className = 'progress-bar bg-success';
+                    passwordHint.textContent = 'Strong password!';
+                }
+            }
+            
+            // Add Bootstrap classes to all form inputs
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                if (!input.classList.contains('form-control') && 
+                    input.type !== 'checkbox' && 
+                    input.type !== 'radio') {
+                    input.classList.add('form-control');
+                }
+                
+                // Add validation for required fields
+                if (input.hasAttribute('required')) {
+                    input.addEventListener('blur', function() {
+                        validateField(this);
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+                
+                // Add animation delay for each field
+                input.style.animationDelay = (Array.from(formInputs).indexOf(input) * 0.1) + 's';
+            });
+            
+            // Form submission with validation
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+                
+                // Validate all required fields
+                requiredFields.forEach(field => {
+                    if (!validateField(field)) {
+                        isValid = false;
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    
+                    // Scroll to first error
+                    const firstError = document.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        firstError.focus();
+                    }
+                    
+                    // Show error message
+                    showAlert('Please fill in all required fields correctly.', 'danger');
+                } else {
+                    // Add loading state to submit button
+                    submitBtn.classList.add('btn-loading');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Updating...';
+                    
+                    // Re-enable after 10 seconds (just in case)
+                    setTimeout(() => {
+                        submitBtn.classList.remove('btn-loading');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Profile';
+                    }, 10000);
+                }
+            });
+            
+            // Field validation function
+            function validateField(field) {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    
+                    // Add error message if not present
+                    if (!field.parentElement.querySelector('.invalid-feedback')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.textContent = 'This field is required';
+                        field.parentElement.appendChild(errorDiv);
+                    }
+                    
+                    return false;
+                } else {
+                    field.classList.remove('is-invalid');
+                    
+                    // Remove error message if present
+                    const errorMsg = field.parentElement.querySelector('.invalid-feedback');
+                    if (errorMsg) {
+                        errorMsg.remove();
+                    }
+                    
+                    // Additional validation for specific fields
+                    if (field.type === 'email') {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(field.value)) {
+                            field.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            errorDiv.textContent = 'Please enter a valid email address';
+                            field.parentElement.appendChild(errorDiv);
+                            return false;
+                        }
+                    }
+                    
+                    if (field.type === 'tel' || field.name.includes('contact')) {
+                        const phoneRegex = /^[0-9\-\+\s\(\)]{10,15}$/;
+                        if (!phoneRegex.test(field.value.replace(/\s/g, ''))) {
+                            field.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            errorDiv.textContent = 'Please enter a valid phone number';
+                            field.parentElement.appendChild(errorDiv);
+                            return false;
+                        }
+                    }
+                    
+                    // Password validation
+                    if (field.name === 'password' && field.value.trim()) {
+                        if (field.value.length < 8) {
+                            field.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            errorDiv.textContent = 'Password must be at least 8 characters long';
+                            field.parentElement.appendChild(errorDiv);
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                }
+            }
+            
+            // Helper function to show alerts
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+                alertDiv.innerHTML = `
+                    <i class="fas fa-${type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                // Insert before the form
+                form.parentElement.insertBefore(alertDiv, form);
+                
+                // Auto dismiss after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+            
+            // Date of Birth field - set max date to today
+            const dobField = document.querySelector('input[name="dob"], input[type="date"]');
+            if (dobField) {
+                const today = new Date().toISOString().split('T')[0];
+                dobField.setAttribute('max', today);
+            }
+            
+            // Experience field - set min value to 0
+            const expField = document.querySelector('input[name="experience"]');
+            if (expField) {
+                expField.setAttribute('min', '0');
+                expField.setAttribute('max', '50');
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

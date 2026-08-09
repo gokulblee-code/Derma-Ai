@@ -1,0 +1,80 @@
+
+<style>
+/* Chat container */
+.chat-container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: #f4f6f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+}
+
+/* Header */
+.chat-header {
+    padding: 15px;
+    background: #0d6efd;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Messages area */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Message bubble */
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    margin-bottom: 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    word-wrap: break-word;
+    background: #e9ecef;
+    color: #000;
+    border-bottom-left-radius: 3px;
+}
+
+/* Reply button */
+.reply-btn {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    background: #dc3545;
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+}
+
+.reply-btn:hover {
+    background: #bb2d3b;
+    color: #fff;
+}
+</style>
+<div class="chat-container">
+        <div class="chat-header">
+            <a href="{% url 'ambulancehome' %}" style="color: white; text-decoration: none;">←</a>
+        Chat
+    </div>
+ 
+    <div class="chat-messages">
+        {% for Hospital in chats %}
+            <div class="message">
+                {{ Hospital.chat }}
+                <br>
+                   <a href="{% url 'ambulancechatreply' Hospital.id %}" class="reply-btn">
+                    Reply
+                </a>
+            </div>
+        {% empty %}
+            <p style="text-align:center;color:#888;">No messages yet</p>
+        {% endfor %}
+    </div>
+</div>

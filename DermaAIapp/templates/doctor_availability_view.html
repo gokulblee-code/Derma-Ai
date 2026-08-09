@@ -1,0 +1,31 @@
+{% extends 'doctorheader.html' %}
+{% block content %}
+<body>
+    
+        <table id="basic-datatables" class="display table table-striped table-hover">
+            <thead>
+                <tr>
+                 
+                    <th>DAY</th>
+                    <th>STARTING TIME</th>
+                    <th>ENDING TIME </th>
+                    <th>Action</th>
+
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for avs in availability %}
+                <tr>
+                    <td>{{ avs.day }}</td>
+                    <td>{{ avs.start_time }}</td>
+                    <td>{{ avs.end_time }}</td>
+                    <td><a href="{% url 'doctor_availability_edit' avs.id %}">EDIT</a></td>
+                    <td><a href="{% url 'doctor_availability_delete' avs.id %}">DELETE</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}

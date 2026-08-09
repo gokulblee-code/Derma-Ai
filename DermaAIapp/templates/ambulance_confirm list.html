@@ -1,0 +1,162 @@
+{% extends 'hospitalheader.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-check-circle me-2"></i>Confirmed Assignments
+                        </h4>
+                        <span class="badge bg-light text-success fs-6">
+                            {{ confirmed_assignments|length }} Confirmed
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if confirmed_assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Patient Details</th>
+                                    <th width="25%">Driver Details</th>
+                                    <th width="25%">Contact Information</th>
+                                    <th width="20%">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ambulance in confirmed_assignments %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-success">{{ forloop.counter }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                <i class="fas fa-user text-success"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ ambulance.user_loginid.name }}</h6>
+                                                <small class="text-muted">Patient ID: {{ ambulance.user_loginid.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                <i class="fas fa-id-badge text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ ambulance.Ambulance_loginid.driver_name }}</h6>
+                                                <small class="text-muted">Driver</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <div class="mb-1">
+                                                <i class="fas fa-phone text-primary me-2"></i>
+                                                <span>{{ ambulance.user_loginid.contact }}</span>
+                                            </div>
+                                            {% if ambulance.ambulance.contact %}
+                                            <div>
+                                                <i class="fas fa-ambulance text-danger me-2"></i>
+                                                <span>Ambulance: {{ ambulance.ambulance.contact }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-success rounded-pill px-3 py-2">
+                                                <i class="fas fa-check me-1"></i>Confirmed
+                                            </span>
+                                                 <a href="{% url 'hospitalchat' ambulance.Ambulance_loginid.loginid.id %}" 
+                                   class="btn btn-transfer">
+                                    💬 Chat
+                                </a>
+                                            <button class="btn btn-sm btn-outline-primary ms-2" 
+                                                    data-bs-toggle="tooltip" 
+                                                    title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Summary Card -->
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card border-success border-2">
+                                <div class="card-body text-center">
+                                    <h2 class="text-success">{{ confirmed_assignments|length }}</h2>
+                                    <p class="text-muted mb-0">Total Assignments</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-primary border-2">
+                                <div class="card-body text-center">
+                                    <h2 class="text-primary">{{ confirmed_assignments|length }}</h2>
+                                    <p class="text-muted mb-0">Active Today</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-info border-2">
+                                <div class="card-body text-center">
+                                    <h2 class="text-info">{{ confirmed_assignments|length }}</h2>
+                                    <p class="text-muted mb-0">This Month</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-ambulance fa-4x text-muted opacity-25"></i>
+                        </div>
+                        <h4 class="text-muted">No Confirmed Assignments</h4>
+                        <p class="text-muted mb-4">There are currently no confirmed ambulance assignments.</p>
+                        <a href="#" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Create New Assignment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if confirmed_assignments %}
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Last updated: {% now "DATETIME_FORMAT" %}
+                        </small>
+                        <button class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-download me-1"></i>Export List
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
+</script>
+{% endblock %}

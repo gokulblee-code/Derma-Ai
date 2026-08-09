@@ -1,0 +1,179 @@
+{% extends 'doctorheader.html' %}
+{% block content %}
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white py-4 text-center">
+                        <h2 class="h3 mb-0">
+                            <i class="fas fa-user-md me-2"></i>Update Profile
+                        </h2>
+                        <p class="mb-0 opacity-75">
+                            Update your personal and professional information
+                        </p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+
+                            <!-- PROFESSIONAL INFORMATION -->
+                            <h5 class="text-primary mb-4">
+                                <i class="fas fa-briefcase-medical me-2"></i>
+                                Professional Information
+                            </h5>
+
+                            <div class="row">
+                                {% for field in form %}
+                                <div class="col-md-12 mb-4">
+                                    <div class="form-group">
+
+                                        <label class="form-label fw-semibold">
+                                            {{ field.label }}
+                                            {% if field.field.required %}
+                                                <span class="text-danger">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {% if field.name == 'specialization' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-warning text-white">
+                                                    <i class="fas fa-stethoscope"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+
+                                        {% elif field.name == 'hospital_name' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-danger text-white">
+                                                    <i class="fas fa-hospital"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+
+                                        {% elif field.name == 'experience' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-info text-white">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </span>
+                                                {{ field }}
+                                                <span class="input-group-text">years</span>
+                                            </div>
+
+                                        {% elif field.name == 'qualification' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-success text-white">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+
+                                        {% elif field.name == 'gender' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-secondary text-white">
+                                                    <i class="fas fa-venus-mars"></i>
+                                                </span>
+                                                <div class="gender-radio-group d-flex align-items-center gap-4 px-3">
+                                                    {% for radio in field %}
+                                                        <div class="form-check mb-0">
+                                                            {{ radio.tag }}
+                                                            <label class="form-check-label ms-1">
+                                                                {{ radio.choice_label }}
+                                                            </label>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+
+                                        {% elif field.name == 'dob' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+
+                                        {% else %}
+                                            {{ field }}
+                                        {% endif %}
+
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger mt-2 py-2">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- PERSONAL INFORMATION -->
+                            <h5 class="text-primary mt-5 mb-4">
+                                <i class="fas fa-user-circle me-2"></i>
+                                Personal Information
+                            </h5>
+
+                            <div class="row">
+                                {% for field in form1 %}
+                                <div class="col-md-12 mb-4">
+                                    <label class="form-label fw-semibold">{{ field.label }}</label>
+
+                                    {% if field.name == 'email' %}
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-primary text-white">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                            {{ field }}
+                                        </div>
+
+                                    {% elif field.name == 'name' %}
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-info text-white">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                            {{ field }}
+                                        </div>
+
+                                    {% elif field.name == 'contact' %}
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-success text-white">
+                                                <i class="fas fa-phone"></i>
+                                            </span>
+                                            {{ field }}
+                                        </div>
+
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
+
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger mt-2 py-2">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- BUTTONS -->
+                            <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                                <a href="{% url 'doctorhome' %}" class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    Update Profile
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}

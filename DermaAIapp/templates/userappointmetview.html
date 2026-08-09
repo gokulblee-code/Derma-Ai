@@ -1,0 +1,217 @@
+{% extends 'userheader.html' %}
+{% block content %}
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header Card -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="h4 mb-0"><i class="fas fa-calendar-check me-2"></i>Appointments</h2>
+                            <span class="badge bg-light text-primary">{{ appointments|length }} Appointments</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="appointments-table" class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3">
+                                            <i class="fas fa-calendar-day me-2"></i>Appointment Date
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-clock me-2"></i>Time
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-calendar-plus me-2"></i>Booked On
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-prescription me-2"></i>Prescription
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-video me-2"></i>Session
+                                        </th>
+                                        <th class="py-3 text-center">
+                                            <i class="fas fa-cogs me-2"></i>Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if appointments %}
+                                        {% for appointment in appointments %}
+                                        <tr class="align-middle">
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-medium">{{ appointment.date }}</span>
+                                                    <small class="text-muted">Date</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <!-- SIMPLE TIME DISPLAY -->
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-clock text-primary me-2"></i>
+                                                    <span class="fw-medium">{{ appointment.time }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="text-muted">{{ appointment.current_date }}</span>
+                                                    <small class="text-muted">Booking Date</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if appointment.prescription %}
+                                                    <div class="prescription-text">
+                                                        <i class="fas fa-file-medical text-primary me-2"></i>
+                                                        <span>{{ appointment.prescription|truncatechars:30 }}</span>
+                                                        {% if appointment.prescription|length > 30 %}
+                                                        <button class="btn btn-sm btn-link p-0 ms-1" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="{{ appointment.prescription }}">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    <span class="text-muted fst-italic">No prescription</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if appointment.url %}
+                                                    <a href="{{ appointment.url }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-success btn-sm">
+                                                        <i class="fas fa-video me-1"></i>Join Session
+                                                    </a>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-clock me-1"></i>Pending
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <!-- Edit Button -->
+                                                    <a href="{% url 'edit_appointment' appointment.id %}" 
+                                                       class="btn btn-warning btn-sm" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Edit Appointment">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Delete Button -->
+                                                    <a href="{% url 'delete_appointment' appointment.id %}" 
+                                                       class="btn btn-danger btn-sm" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Delete Appointment"
+                                                       onclick="return confirm('Are you sure you want to delete this appointment?');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Feedback Button -->
+                                                    <a href="{% url 'feedback' appointment.id %}" 
+                                                       class="btn btn-info btn-sm" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Add Feedback">
+                                                        <i class="fas fa-comment-medical"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5">
+                                                <div class="py-4">
+                                                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                                    <h5 class="text-muted">No Appointments Found</h5>
+                                                    <p class="text-muted mb-0">You don't have any appointments scheduled.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    {% if appointments %}
+                    <div class="card-footer bg-light py-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Showing {{ appointments|length }} appointment(s)
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-sync-alt me-1"></i>
+                                    Updated: {% now "F j, Y" %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Bootstrap JS for tooltips -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        .prescription-text {
+            background-color: #f8f9fa;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border-left: 3px solid #0d6efd;
+            max-width: 250px;
+        }
+        
+        .table > :not(caption) > * > * {
+            padding: 1rem 0.75rem;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Remove the old badge opacity styles */
+        .badge.bg-opacity-10 {
+            --bs-bg-opacity: 0.1;
+        }
+        
+        .card {
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.125);
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+    
+    <script>
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+{% endblock %}

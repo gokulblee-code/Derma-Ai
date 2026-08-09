@@ -1,0 +1,139 @@
+{% extends "userheader.html" %}
+{% block content %}
+<div style="max-width:400px; margin:40px auto; text-align:center; padding: 20px;">
+  <div style="font-size: 70px; margin-bottom: 20px; animation: pulse-icon 2s infinite;">🚨</div>
+  <h2 style="font-weight: 800; color: #d9534f; margin-bottom: 10px;">BROADCAST EMERGENCY</h2>
+  <p class="text-muted mb-4" style="font-size: 1.1rem;">Your precise coordinates will be shared with the <strong>closest medical facilities</strong> immediately.</p>
+
+  <form method="POST" id="emergencyForm">
+    {% csrf_token %}
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
+    <button type="button" onclick="sendEmergency()" class="btn-emergency-main">
+      <i class="fas fa-satellite-dish me-2"></i> ACTIVATE ALERT
+    </button>
+  </form>
+</div>
+
+<!-- Sending Modal (Full Screen Overlay) -->
+<div id="sendingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; align-items:center; justify-content:center; color:white; flex-direction:column; font-family: 'Poppins', sans-serif; text-align: center; padding: 20px;">
+    <div class="radar-container" style="margin-bottom:40px;">
+        <div class="radar"></div>
+        <div class="radar-center"></div>
+    </div>
+    <h2 style="color:#ff4d4d; letter-spacing:4px; font-weight:900; margin-bottom: 15px; text-transform: uppercase;">Broadcasting</h2>
+    <p style="font-size: 1.2rem; opacity:0.9; max-width: 300px;">Establishing secure connection to emergency services...</p>
+    <div style="margin-top:30px; font-size:14px; color:#ff4d4d; font-weight: 600; text-transform:uppercase; animation: blink 1s infinite;">
+        DO NOT CLOSE THIS PAGE
+    </div>
+</div>
+
+<style>
+@keyframes pulse-icon {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0px red); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 20px red); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0px red); }
+}
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+.btn-emergency-main {
+    background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
+    color: white;
+    padding: 22px 40px;
+    border: none;
+    border-radius: 60px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255,0,0,0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.btn-emergency-main:hover {
+    transform: scale(1.02) translateY(-5px);
+    box-shadow: 0 20px 40px rgba(255,0,0,0.6);
+}
+.radar-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+.radar-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    background: #ff0000;
+    border-radius: 50%;
+    box-shadow: 0 0 30px #ff0000;
+}
+.radar {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.05);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+}
+.radar::before, .radar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 3px solid #ff4d4d;
+    width: 0;
+    height: 0;
+    animation: radar-waves 3s infinite cubic-bezier(0, 0.2, 0.8, 1);
+}
+.radar::after {
+    animation-delay: 1.5s;
+}
+@keyframes radar-waves {
+    0% { width: 0; height: 0; opacity: 1; }
+    100% { width: 450px; height: 450px; opacity: 0; }
+}
+</style>
+
+<script>
+function sendEmergency() {
+  const modal = document.getElementById("sendingModal");
+  modal.style.display = "flex";
+
+  if (!navigator.geolocation) {
+    modal.style.display = "none";
+    alert("CRITICAL ERROR: Geolocation is not supported by this browser.");
+    return;
+  }
+  
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      document.getElementById("latitude").value = pos.coords.latitude.toFixed(8);
+      document.getElementById("longitude").value = pos.coords.longitude.toFixed(8);
+      
+      // Artificial delay to allow user to see the broadcasting state
+      setTimeout(() => {
+          document.getElementById("emergencyForm").submit();
+      }, 2000);
+    },
+    function(err) {
+      modal.style.display = "none";
+      let msg = "Could not retrieve location.";
+      if(err.code === 1) msg = "Location access denied. Please enable GPS and allow permissions.";
+      else if(err.code === 3) msg = "Location timeout. Please try again in an open area.";
+      
+      alert(msg);
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+</script>
+{% endblock %}

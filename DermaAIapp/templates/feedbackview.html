@@ -1,0 +1,117 @@
+{% extends 'userheader.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Feedbackview </title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .table-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        thead {
+            background-color: #2c3e50;
+            color: #ffffff;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 15px;
+                background: #fff;
+                border-radius: 5px;
+                padding: 10px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            td {
+                padding: 10px;
+                text-align: right;
+                position: relative;
+            }
+
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 50%;
+                text-align: left;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<div class="container mt-4">
+    <div class="table-responsive">
+        <table id="basic-datatables" class="table table-bordered table-hover">
+            <thead class="table-dark">
+<table id="basic-datatables" class="display table table-striped table-hover"  >  
+<table id="basic-datatables" class="display table table-striped table-hover"  >  
+    <thead>
+        <tr>
+            <th>Feedback</th>
+            <th>current date </th>
+            <th>Edit</th>
+            <th>Cancel</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        {% for feedbackview in feedbacks %}
+        <tr>
+            <td>{{ feedbackview.feedback }}</td>
+            <td>{{feedbackview.current_date}}</td>
+            {% if feedbackview.user_id == current_user %}
+            <td><a href="{% url 'feedbackedit' feedbackview.id %}" class="btn btn-sm btn-danger">EDIT</a></td>
+            <td><a href="{% url 'feedbackdelete' feedbackview.id %}" class="btn btn-sm btn-danger">Cancel</a></td>
+             {% else %}
+                    <span class="text-muted">View only</span>
+                {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <!-- <script>
+        window.addEventListener("pageshow", function(event) {
+            if (event.persisted) {
+                window.location.reload();  // back button ഉപയോഗിച്ചാൽ page refresh ചെയ്യും
+            }
+        });
+        </script> -->
+</body>
+</html>
+{% endblock %}

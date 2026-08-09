@@ -1,0 +1,150 @@
+
+<style>
+/* Chat container */
+.chat-container {
+    max-width: 900px;
+    margin: 30px auto;
+    background: #f4f6f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+}
+
+/* Header */
+.chat-header {
+    padding: 15px;
+    background: #0d6efd;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Messages area */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Group wrapper for message + reply (column layout) */
+.message-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+    max-width: 100%;
+}
+
+/* Reply outside bubble (left-aligned) - received replies show white background */
+.reply-outside {
+            background: #ffffff; /* white background */
+            color: #000000; /* black text */
+            padding: 6px 10px; /* flatter padding */
+            border-radius: 12px;
+            margin-top: 0;
+            display: inline-flex;
+            align-items: center;
+            max-width: 85%;
+            align-self: flex-start;
+            border: 1px solid #e6e6e6;
+            min-height: 36px;
+            max-height: 36px;
+            overflow: hidden;
+        }
+
+/* Message bubbles */
+.message {
+            max-width: 85%;
+            padding: 6px 14px; /* reduced vertical padding for flatter appearance */
+            margin-bottom: 0; /* spacing handled by .message-group gap */
+            border-radius: 18px;
+            font-size: 14px;
+            word-wrap: break-word;
+            display: inline-flex;
+            align-items: center; /* vertically center single-line text */
+            min-height: 44px; /* fixed-ish flat height */
+            max-height: 44px;
+            overflow: hidden; /* keep bubble height flat */
+        }
+
+/* Sender message */
+.message.sent {
+            background: #0d6efd;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+        }
+
+/* Receiver message */
+.message.received {
+            background: #e9ecef;
+            color: #000;
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+        }
+
+/* Chat input */
+.chat-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background: white;
+    border-radius: 0 0 10px 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.chat-input button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #0d6efd;
+    color: white;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background: #0b5ed7;
+}
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">
+            <a href="{% url 'userhome' %}" style="color: white; text-decoration: none;">←</a>
+        Chat
+    </div>
+
+    <div class="chat-messages">
+        {% for msg in messages %}
+            <div class="message-group">
+                <div class="message {% if msg.sender == sender %}sent{% else %}received{% endif %}">
+                    {{ msg.chat }}
+                </div>
+                {% if msg.reply %}
+                    <div class="reply-outside">
+                        {{ msg.reply }}
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p style="text-align:center;color:#888;">No messages yet</p>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="chat-input">
+        {% csrf_token %}
+        <input type="text" name="message" placeholder="Type your message..." required>
+        <button type="submit">Send</button>
+    </form>
+</div>
+
+

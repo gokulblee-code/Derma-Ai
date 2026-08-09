@@ -1,0 +1,29 @@
+{% extends 'hospitalhome.html' %}
+{% block content %}
+<html>
+<head>
+    <title> Patient  Transfer</title>
+</head>
+<body><center>
+    <h2>Patient  Transfer</h2>
+    <form method="post">
+        {% csrf_token %}
+            {{ form.as_p }}
+            {% if ambulances %}
+                <label for="ambulance_select">Select Ambulance</label>
+                <select name="ambulance_select" id="ambulance_select" class="form-control">
+                    <option value="">-- Select Ambulance --</option>
+                    {% for amb in ambulances %}
+                        <option value="{{ amb.id }}">{{ amb.vechile_number }} - {{ amb.driver_name }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+            {% elif ambulance %}
+                <p>Assigning with ambulance: <strong>{{ ambulance.vechile_number }} - {{ ambulance.driver_name }}</strong></p>
+            {% endif %}
+        <button type="submit">Register</button>
+    </form>
+    </center>
+</body>
+</html>
+{% endblock %}

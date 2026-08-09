@@ -1,0 +1,110 @@
+
+
+<style>
+/* Back button */
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.back-button:hover {
+    background: #5a6268;
+    color: white;
+}
+
+/* Chat container */
+.chat-container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: #f4f6f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+}
+
+/* Header */
+.chat-header {
+    padding: 15px;
+    background: #0d6efd;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Messages area */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Common bubble */
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    margin-bottom: 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+/* User message (BLUE, right) */
+.message.sent {
+    background: #0d6efd;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 3px;
+}
+
+/* Doctor reply (WHITE, left) */
+.message.received {
+    background: #ffffff;
+    color: #000;
+    margin-right: auto;
+    border-bottom-left-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+</style>
+
+<!-- <a href="{% url 'userhome' %}" class="back-button">← Back to Home</a> -->
+
+<div class="chat-container">
+    
+    <div class="chat-header">
+         <a href="{% url 'userhome' %}" style="color: white; text-decoration: none;">←</a>
+    
+        Chat
+    </div>
+
+    <div class="chat-messages">
+        {% for Hospital in chats %}
+        
+
+            <!-- User message -->
+            <div class="message sent">
+                {{ Hospital.chat }}
+            </div>
+
+            <!-- Doctor reply -->
+            {% if Hospital.reply %}
+                <div class="message received">
+                    {{ Hospital.reply }}
+                </div>
+            {% endif %}
+
+        {% empty %}
+            <p style="text-align:center;color:#888;">No messages yet</p>
+        {% endfor %}
+    </div>
+</div>
+
+

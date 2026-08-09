@@ -1,0 +1,31 @@
+# Large Folders & AI Model Caches
+Dataset/
+hf_cache/
+hf_cache_v2/
+test_reports/
+
+# Python Virtual Environments
+venv/
+ENV/
+env/
+
+# Databases & Environment Variables
+db.sqlite3
+.env
+*.env
+
+# Build & Dependency Folders
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+
+# ML / AI Model Weight Files
+*.h5
+*.pt
+*.pth
+*.onnx
+*.bin
+*.safetensors
+*.ckpt

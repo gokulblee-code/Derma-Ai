@@ -1,0 +1,110 @@
+
+<style>
+/* Chat container */
+.chat-container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: #f4f6f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+}
+
+/* Header */
+.chat-header {
+    padding: 15px;
+    background: #0d6efd;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Messages area */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Message bubbles */
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+/* Sender message */
+.message.sent {
+    background: #0d6efd;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 3px;
+}
+
+/* Receiver message */
+.message.received {
+    background: #e9ecef;
+    color: #000;
+    margin-right: auto;
+    border-bottom-left-radius: 3px;
+}
+
+/* Chat input */
+.chat-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background: white;
+    border-radius: 0 0 10px 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.chat-input button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #0d6efd;
+    color: white;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background: #0b5ed7;
+}
+</style>
+
+<div class="chat-container">
+    <div class="chat-messages">
+        <div class="message received">
+            
+            <strong>Original message</strong>
+            <p>{{ chat.chat }}</p>
+        </div>
+    </div>
+
+    <form method="POST" class="chat-input">
+        {% csrf_token %}
+        {{ form.reply.label_tag }}<br>
+        {{ form.reply }}
+        <button type="submit">Send Reply</button>
+    </form>
+        {% csrf_token %}
+        <input type="text" name="message" placeholder="Type your message..." required>
+        <button type="submit">Send</button>
+    </form>
+</div>
+
+

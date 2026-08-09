@@ -1,0 +1,396 @@
+{% extends 'doctorheader.html' %}
+{% block content %}
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <!-- Form Card -->
+                <div class="card shadow border-0">
+                    <div class="card-header bg-primary text-white py-4">
+                        <div class="text-center">
+                            <h2 class="h3 mb-2"><i class="fas fa-plus-circle me-2"></i>Add New Test Report</h2>
+                            <p class="mb-0 opacity-75">Enter patient test details below</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5">
+                        <form method="POST" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- Form Fields with Custom Styling -->
+                            {% for field in form %}
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                
+                                <!-- Custom Field Styling Based on Field Type -->
+                                {% if field.name == 'test' %}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white">
+                                            <i class="fas fa-flask"></i>
+                                        </span>
+                                        {{ field }}
+                                    </div>
+                                {% elif field.name == 'current_date' %}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-info text-white">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </span>
+                                        {{ field }}
+                                    </div>
+                                {% elif field.name == 'user_id' %}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                
+                                <!-- Help Text -->
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Error Messages -->
+                                {% if field.errors %}
+                                    <div class="alert alert-danger mt-2 py-2 px-3">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <a href="{% url 'testview' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back
+                                </a>
+                                
+                                <div class="d-flex gap-3">
+                                    <button type="reset" class="btn btn-outline-danger">
+                                        <i class="fas fa-redo me-2"></i>Clear
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-5">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-light py-3">
+                        <div class="row">
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    Ensure all information is accurate before submitting.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            background-color: #fff;
+        }
+        
+        .form-label {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .input-group-text {
+            border: 2px solid #dee2e6;
+            border-right: none;
+            background-color: #f8f9fa;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+        }
+        
+        .input-group .form-control:focus {
+            border-left: none;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #6c757d;
+        }
+        
+        .btn-outline-danger {
+            border-color: #dc3545;
+        }
+        
+        .alert-danger {
+            border-radius: 6px;
+            border: none;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+        }
+        
+        /* Style all Django form inputs */
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            outline: none;
+        }
+        
+        /* Textarea specific */
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* Checkbox and Radio specific */
+        input[type="checkbox"], input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        /* Required field indicator */
+        .text-danger {
+            font-weight: bold;
+        }
+        
+        /* Loading state for submit button */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+        
+        .btn-loading:after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            // Add Bootstrap classes to all form inputs
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                if (!input.classList.contains('form-control') && 
+                    input.type !== 'checkbox' && 
+                    input.type !== 'radio') {
+                    input.classList.add('form-control');
+                }
+                
+                // Add validation classes for required fields
+                if (input.hasAttribute('required')) {
+                    input.addEventListener('blur', function() {
+                        if (!this.value.trim()) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            });
+            
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+                
+                // Validate required fields
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                        
+                        // Scroll to first error
+                        if (!firstError) {
+                            firstError = field;
+                        }
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    
+                    // Scroll to first error
+                    if (firstError) {
+                        firstError.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        firstError.focus();
+                    }
+                    
+                    // Show error message
+                    showAlert('Please fill in all required fields.', 'danger');
+                } else {
+                    // Add loading state to submit button
+                    submitBtn.classList.add('btn-loading');
+                    submitBtn.disabled = true;
+                    
+                    // Change cursor
+                    submitBtn.style.cursor = 'wait';
+                    
+                    // Re-enable after 10 seconds (just in case)
+                    setTimeout(() => {
+                        submitBtn.classList.remove('btn-loading');
+                        submitBtn.disabled = false;
+                        submitBtn.style.cursor = 'pointer';
+                    }, 10000);
+                }
+            });
+            
+            // Clear button functionality
+            const clearBtn = form.querySelector('button[type="reset"]');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to clear all fields?')) {
+                        // Remove all validation classes
+                        form.querySelectorAll('.is-invalid').forEach(el => {
+                            el.classList.remove('is-invalid');
+                        });
+                    } else {
+                        // Prevent the reset if user cancels
+                        return false;
+                    }
+                });
+            }
+            
+            // Helper function to show alerts
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-4`;
+                alertDiv.innerHTML = `
+                    <i class="fas fa-${type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                // Insert after the form title
+                const cardBody = document.querySelector('.card-body');
+                const firstFormGroup = cardBody.querySelector('.mb-4');
+                if (firstFormGroup) {
+                    cardBody.insertBefore(alertDiv, firstFormGroup);
+                }
+                
+                // Auto dismiss after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+            
+            // Add animation to form
+            const card = document.querySelector('.card');
+            card.style.animation = 'fadeInUp 0.6s ease-out';
+            
+            // Add the animation CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

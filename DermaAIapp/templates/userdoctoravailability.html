@@ -1,0 +1,24 @@
+<h2>Doctor Availability</h2>
+<table border="1">
+    <tr>
+        <th>Day</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Action</th>
+    </tr>
+
+    {% for a in availability %}
+    <tr>
+        <td>{{ a.day }}</td>
+        <td>{{ a.start_time }}</td>
+        <td>{{ a.end_time }}</td>
+        <td>
+            <a href="/appointment/{{ a.doctor.id }}/">Book Appointment</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">No availability found</td>
+    </tr>
+    {% endfor %}
+</table>

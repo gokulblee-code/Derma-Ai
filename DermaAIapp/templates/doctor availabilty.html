@@ -1,0 +1,17 @@
+<table border="1">
+    <tr>
+        <th>Day</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Status</th>
+    </tr>
+    {% for a in availability %}
+    <tr>
+        <td>{{ a.day }}</td>
+        <td>{{ a.start_time }}</td>
+        <td>{{ a.end_time }}</td>
+        <td>{{ a.status|yesno:"Available,Not Available" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
